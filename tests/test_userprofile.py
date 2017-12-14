@@ -10,8 +10,10 @@ except ImportError:
 
 import i18naddress
 import pytest
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.http import QueryDict
+from django.urls import reverse
 
 from saleor.userprofile import forms, models, i18n
 from saleor.userprofile.validators import validate_possible_number
@@ -124,3 +126,16 @@ def test_validate_possible_number(input, exception):
             validate_possible_number(input)
     else:
         validate_possible_number(input)
+
+
+def test_order_with_lines_pagination(admin_client, order_list):
+    settings.PAGINATE_BY = 1
+    data = {'page': '1'}
+    url = reverse('profile:details')
+    response = admin_client.get(url, data)
+    assert response.status_code == 200
+
+    data = {'page': '2'}
+    url = reverse('profile:details')
+    response = admin_client.get(url, data)
+    assert response.status_code == 200
