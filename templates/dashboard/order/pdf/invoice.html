@@ -86,13 +86,13 @@
           {{ item.product_sku }}
         </td>
         <td class="right-align">
-          {% gross item.get_price_per_item html=True %}
+          {{ item.get_price_per_item.gross|amount:'html' }}
         </td>
         <td class="right-align">
           {{ item.quantity }}
         </td>
         <td class="right-align">
-          {% gross item.get_total html=True %}
+          {{ item.get_total.gross|amount:'html' }}
         </td>
       </tr>
     {% endfor %}
@@ -105,7 +105,7 @@
             {% endblocktrans %}
           </td>
           <td class="right-align">
-            {% gross shipping.price html=True %}
+            {{ shipping.price.gross|amount:'html' }}
           </td>
         </tr>
       {% endfor %}
@@ -121,7 +121,7 @@
       {% trans "Subtotal" context "Order subtotal price" %}
     </td>
     <td class="right-align">
-      {% gross order.get_subtotal_without_voucher html=True %}
+      {{ order.get_subtotal_without_voucher.gross|amount:'html' }}
     </td>
   </tr>
   <tr>
@@ -129,7 +129,7 @@
       {% trans "Total Shipping Price" context "Order total shipping price header" %}
     </td>
     <td class="right-align">
-      {% gross order.get_total_shipping html=True %}
+      {{ order.get_total_shipping|amount:'html' }}
     </td>
   </tr>
   {% if order.voucher %}
@@ -138,7 +138,7 @@
         {% trans "Voucher" context "Order voucher header" %} {{ order.voucher }}
       </td>
       <td class="right-align">
-        {% gross order.discount|discount_amount_for:order.total html=True %}
+        {{ order.discount|discount_amount_for:order.total|amount:'html' }}
       </td>
     </tr>
   {% endif %}
@@ -149,7 +149,7 @@
       {% trans "Grand total" context "Order total price header" %}
     </td>
     <td class="right-align">
-      {% gross order.get_total html=True %}
+      {{ order.get_total.gross|amount:'html' }}
     </td>
   </tr>
   </tfoot>

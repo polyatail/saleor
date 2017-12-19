@@ -3,6 +3,7 @@ from io import BytesIO
 from unittest.mock import MagicMock
 
 import pytest
+from prices import Amount, Price
 from django.contrib.auth.models import AnonymousUser, Group, Permission
 from django.contrib.sites.models import Site
 from django.core.files import File
@@ -122,7 +123,8 @@ def billing_address(db):  # pylint: disable=W0613
 @pytest.fixture
 def shipping_method(db):  # pylint: disable=W0613
     shipping_method = ShippingMethod.objects.create(name='DHL')
-    shipping_method.price_per_country.create(price=10)
+    shipping_method.price_per_country.create(
+        price_net=Amount(10, 'USD'), price_gross=Amount(12, 'USD'))
     return shipping_method
 
 
@@ -244,7 +246,9 @@ def product_in_stock(product_class, default_category):
     attributes = {smart_text(product_attr.pk): smart_text(attr_value.pk)}
 
     product = Product.objects.create(
-        name='Test product', price=Decimal('10.00'),
+        name='Test product',
+        price_net=Amount('10.00', currency='USD'),
+        price_gross=Amount('12.00', currency='USD'),
         product_class=product_class, attributes=attributes)
     product.categories.add(default_category)
 
@@ -278,18 +282,21 @@ def product_list(product_class, default_category):
     attributes = {smart_text(product_attr.pk): smart_text(attr_value.pk)}
 
     product_1 = Product.objects.create(
-        name='Test product 1', price=Decimal('10.00'),
-        product_class=product_class, attributes=attributes, is_published=True)
+        name='Test product 1', price_net=Decimal('10.00'),
+        price_gross=Decimal('12.00'), product_class=product_class,
+        attributes=attributes, is_published=True)
     product_1.categories.add(default_category)
 
     product_2 = Product.objects.create(
-        name='Test product 2', price=Decimal('20.00'),
-        product_class=product_class, attributes=attributes, is_published=False)
+        name='Test product 2', price_net=Decimal('20.00'),
+        price_gross=Decimal('24.00'), product_class=product_class,
+        attributes=attributes, is_published=False)
     product_2.categories.add(default_category)
 
     product_3 = Product.objects.create(
-        name='Test product 3', price=Decimal('20.00'),
-        product_class=product_class, attributes=attributes, is_published=True)
+        name='Test product 3', price_net=Decimal('20.00'),
+        price_gross=Decimal('24.00'), product_class=product_class,
+        attributes=attributes, is_published=True)
     product_3.categories.add(default_category)
 
     return [product_1, product_2, product_3]
@@ -319,7 +326,7 @@ def product_with_image(product_in_stock, product_image):
 @pytest.fixture
 def unavailable_product(product_class, default_category):
     product = Product.objects.create(
-        name='Test product', price=Decimal('10.00'),
+        name='Test product', price_net=Decimal('10.00'),
         product_class=product_class,
         is_published=False)
     product.categories.add(default_category)
@@ -355,7 +362,7 @@ def voucher(db):  # pylint: disable=W0613
 def order_with_lines(order, product_class):
     group = DeliveryGroup.objects.create(order=order)
     product = Product.objects.create(
-        name='Test product', price=Decimal('10.00'),
+        name='Test product', price_net=Decimal('10.00'),
         product_class=product_class)
 
     OrderLine.objects.create(
@@ -368,7 +375,7 @@ def order_with_lines(order, product_class):
         unit_price_gross=Decimal('10.00'),
     )
     product = Product.objects.create(
-        name='Test product 2', price=Decimal('20.00'),
+        name='Test product 2', price_net=Decimal('20.00'),
         product_class=product_class)
 
     OrderLine.objects.create(
@@ -381,7 +388,7 @@ def order_with_lines(order, product_class):
         unit_price_gross=Decimal('20.00'),
     )
     product = Product.objects.create(
-        name='Test product 3', price=Decimal('30.00'),
+        name='Test product 3', price_net=Decimal('30.00'),
         product_class=product_class)
 
     OrderLine.objects.create(
@@ -401,7 +408,7 @@ def order_with_lines(order, product_class):
 def order_with_lines_and_stock(order, product_class):
     group = DeliveryGroup.objects.create(order=order)
     product = Product.objects.create(
-        name='Test product', price=Decimal('10.00'),
+        name='Test product', price_net=Decimal('10.00'),
         product_class=product_class)
     variant = ProductVariant.objects.create(product=product, sku='SKU_A')
     warehouse = StockLocation.objects.create(name='Warehouse 1')
@@ -420,7 +427,7 @@ def order_with_lines_and_stock(order, product_class):
         stock_location=stock.location.name
     )
     product = Product.objects.create(
-        name='Test product 2', price=Decimal('20.00'),
+        name='Test product 2', price_net=Decimal('20.00'),
         product_class=product_class)
     variant = ProductVariant.objects.create(product=product, sku='SKU_B')
     stock = Stock.objects.create(
