@@ -207,6 +207,8 @@ class Checkout:
         value = self.storage.get('discount_value')
         currency = self.storage.get('discount_currency')
         name = self.storage.get('discount_name')
+        print(value)
+        print(type(value))
         if value is not None and name is not None and currency is not None:
             amount = Amount(value, currency=currency)
             return FixedDiscount(amount, name)
@@ -214,7 +216,7 @@ class Checkout:
     @discount.setter
     def discount(self, discount):
         amount = discount.amount
-        self.storage['discount_value'] = smart_text(amount.net)
+        self.storage['discount_value'] = smart_text(amount.value)
         self.storage['discount_currency'] = amount.currency
         self.storage['discount_name'] = discount.name
         self.modified = True
@@ -324,7 +326,7 @@ class Checkout:
         for partition in self.cart.partition():
             shipping_required = partition.is_shipping_required()
             if shipping_required:
-                shipping_price = self.shipping_method.get_total()
+                shipping_price = self.shipping_method.get_total().gross.value
                 shipping_method_name = smart_text(self.shipping_method)
             else:
                 shipping_price = 0
@@ -385,6 +387,8 @@ class Checkout:
             total
             for shipment, shipping_cost, total in self.deliveries)
         total = sum(cost_iterator, zero)
+        print(total)
+        print(self.discount)
         return total if self.discount is None else self.discount.apply(total)
 
     def get_total_shipping(self):
