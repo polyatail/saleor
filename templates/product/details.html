@@ -17,11 +17,6 @@
     <li><a href="/">
         {% trans "Home" context "Main navigation item" %}
     </a></li>
-    {% with product.get_first_category as category %}
-      {% if category %}
-        <li><a href="{{ category.get_absolute_url }}">{{ category }}</a></li>
-      {% endif %}
-    {% endwith %}
     <li><a href="{{ product.get_absolute_url }}">{{ product }}</a></li>
   </ul>
 {% endblock breadcrumb %}

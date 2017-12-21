@@ -1,6 +1,7 @@
 from django.template.response import TemplateResponse
 from django.contrib import messages
 from django.utils.translation import pgettext_lazy
+from django.http import HttpResponseRedirect
 from impersonate.views import impersonate as orig_impersonate
 
 from ..dashboard.views import staff_member_required
@@ -9,13 +10,10 @@ from ..userprofile.models import User
 
 
 def home(request):
-    products = products_for_homepage()[:8]
-    products = products_with_availability(
-        products, discounts=request.discounts, local_currency=request.currency)
-    return TemplateResponse(
-        request, 'home.html',
-        {'products': products, 'parent': None})
-
+    if request.user.is_authenticated():
+      return HttpResponseRedirect("/products/category/saguaro-biosciences-llc-1/")
+    else:
+      return HttpResponseRedirect("/account/login")
 
 @staff_member_required
 def styleguide(request):

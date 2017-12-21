@@ -665,6 +665,7 @@ def ajax_upload_image(request, product_pk):
     elif form.errors:
         status = 400
         ctx = {'error': form.errors}
+        import pdb; pdb.set_trace()
     return JsonResponse(ctx, status=status)
 
 

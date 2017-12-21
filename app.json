@@ -13,16 +13,16 @@
   "env": {
     "DJANGO_SETTINGS_MODULE": "saleor.settings",
     "NODE_ENV": "production",
-    "DEBUG": "False",
+    "DEBUG": "True",
     "NPM_CONFIG_PRODUCTION": "false",
     "ALLOWED_HOSTS": {
       "description": "Comma-separated list of hosts",
-      "value": ".herokuapp.com"
+      "value": "127.0.0.1"
     },
     "DEFAULT_FROM_EMAIL": "noreply@example.com",
     "SECRET_KEY": {
       "description": "A secret key for verifying the integrity of signed cookies.",
-      "generator": "secret"
+      "generator": "secret",
     },
     "AWS_MEDIA_BUCKET_NAME": {
       "description": "If you intend to upload your own product images, we strongly recommend configure S3.",

@@ -121,7 +121,7 @@ TEMPLATES = [{
         'string_if_invalid': '<< MISSING VARIABLE "%s" >>' if DEBUG else ''}}]
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = "hOVfDdL2G4tldFJkqHEvm6xLBqZ4gh" #os.environ.get('SECRET_KEY')
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -357,7 +357,7 @@ WEBPACK_LOADER = {
 LOGOUT_ON_PASSWORD_CHANGE = False
 
 # SEARCH CONFIGURATION
-DB_SEARCH_ENABLED = True
+DB_SEARCH_ENABLED = False
 
 # support deployment-dependant elastic enviroment variable
 ES_URL = (os.environ.get('ELASTICSEARCH_URL') or
