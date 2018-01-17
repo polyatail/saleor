@@ -81,13 +81,6 @@
                   {% trans "Name" context "Products list table header" %}
                 </a>
               </th>
-              {% get_sort_by_toggle 'price' as toggle %}
-              <th class="wide {% if toggle.is_active %}active{% endif %}">
-                <a href="{{ toggle.url }}">
-                  <svg data-src="{{ toggle.sorting_icon }}" />
-                  {% trans "Price" context "Products list table header" %}
-                </a>
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -104,9 +97,6 @@
               </td>
               <td>
                 {{ product.name }}
-              </td>
-              <td>
-                {% gross product.price html=True %}
               </td>
             </tr>
           {% endfor %}

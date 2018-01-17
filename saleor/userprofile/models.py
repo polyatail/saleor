@@ -8,7 +8,7 @@ from django_countries.fields import Country, CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
 from .validators import validate_possible_number
-
+from ..product.models import Category
 
 class PossiblePhoneNumberField(PhoneNumberField):
     """
@@ -134,6 +134,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     is_active = models.BooleanField(
         pgettext_lazy('User field', 'active'),
         default=True)
+    company = models.ForeignKey(Category, on_delete=models.CASCADE)
     date_joined = models.DateTimeField(
         pgettext_lazy('User field', 'date joined'),
         default=timezone.now, editable=False)

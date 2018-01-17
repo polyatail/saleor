@@ -99,7 +99,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ['attributes', 'product_class']
+        exclude = ['attributes', 'product_class', 'is_published']
         labels = {
             'is_published': pgettext_lazy('product form', 'Published'),
             'is_featured': pgettext_lazy(
@@ -153,9 +153,6 @@ class ProductVariantForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProductVariantForm, self).__init__(*args, **kwargs)
-        if self.instance.product.pk:
-            self.fields['price_override'].widget.attrs[
-                'placeholder'] = self.instance.product.price.gross
 
 
 class CachingModelChoiceIterator(ModelChoiceIterator):

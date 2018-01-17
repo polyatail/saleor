@@ -22,19 +22,28 @@ logger = logging.getLogger(__name__)
 
 
 def details(request, token):
-    orders = Order.objects.prefetch_related('groups__lines__product')
-    orders = orders.select_related('billing_address', 'shipping_address',
-                                   'user')
+    rders = Order.objects.prefetch_related('groups__lines__product')
+#    orders = orders.select_related('billing_address', 'shipping_address',
+#                                   'user')
     order = get_object_or_404(orders, token=token)
     groups = order.groups.all()
     return TemplateResponse(request, 'order/details.html',
                             {'order': order, 'groups': groups})
 
 
+def confirmation(request, token):
+    orders = Order.objects.prefetch_related('groups__lines__product')
+    order = get_object_or_404(orders, token=token)
+    groups = order.groups.all()
+    payments = order.payments.all()
+    form_data = request.POST or None
+    return TemplateResponse(request, 'order/confirmation.html',
+                            {'order': order})
+
 def payment(request, token):
     orders = Order.objects.prefetch_related('groups__lines__product')
-    orders = orders.select_related('billing_address', 'shipping_address',
-                                   'user')
+#    orders = orders.select_related('billing_address', 'shipping_address',
+#                                   'user')
     order = get_object_or_404(orders, token=token)
     groups = order.groups.all()
     payments = order.payments.all()

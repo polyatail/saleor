@@ -45,9 +45,6 @@
                   </a>
                 </li>
               {% endif %}
-              <li>
-                <a href="{% url "profile:details" %}">
-                  {% trans "Your account" context "Main navigation item" %}</a>
               </li>
               {% if user.is_impersonate %}
                 <li>

@@ -2,14 +2,15 @@
 {% load materializecss %}
 {% load i18n %}
 {% load staticfiles %}
+{% load bootstrap_form from bootstrap3 %}
 
 {% block title %}
   {% if staff_member %}
     {{ staff_member }}
   {% else %}
-    {% trans "Add new staff member" context "Dashboard add group" %}
+    Add New User
   {% endif %}
-     - {% trans "Staff" context "Dashboard staff" %} - {{ block.super }}
+     - User Accounts - {{ block.super }}
 {% endblock %}
 
 {% block body_class %}body-customers{% endblock %}
@@ -24,8 +25,7 @@
 {% block breadcrumbs %}
   <ul class="breadcrumbs breadcrumbs--history">
     <li>
-      <a href="{% url "dashboard:staff-list" %}">
-        {% trans "Staff" context "Dashboard staff list" %}
+      <a href="{% url "dashboard:staff-list" %}">User Accounts
       </a>
     </li>
     <li class="back-mobile">
@@ -33,7 +33,7 @@
         <svg data-src="{% static "dashboard/images/arrow_left.svg" %}" fill="#fff" width="20px" height="20px" />
       </a>
     </li>
-    <li><span class="breadcrumbs--elipsed-item">{% if staff_member %}{{ staff_member }}{% else %}{% trans 'Add staff member' context 'Dashboard add staff member action' %}{% endif %}</span></li>
+    <li><span class="breadcrumbs--elipsed-item">{% if staff_member %}{{ staff_member }}{% else %}Add new user{% endif %}</span></li>
   </ul>
 {% endblock %}
 
@@ -61,8 +61,7 @@
       {% if form %}
         <form class="card" method="post">
           <div class="card-content">
-            <span class="card-title">
-              {% trans 'Staff member details' context 'Staff member details header' %}
+            <span class="card-title">User Account Details
             </span>
             <div class="data">
                 {% csrf_token %}

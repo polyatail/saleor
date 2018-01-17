@@ -83,9 +83,6 @@
                 </div>
               </div>
               <div class="col s12 l4">
-                <div class="row">
-                  {{ product_form.price|materializecss }}
-                </div>
                 {% if not product.product_class.has_variants %}
                   <div class="row">
                     {{ variant_form.sku|materializecss }}
@@ -93,15 +90,6 @@
                 {% endif %}
                 <div class="row">
                   {{ product_form.categories|materializecss }}
-                </div>
-                <div class="row">
-                  {{ product_form.available_on|materializecss }}
-                </div>
-                <div class="row">
-                  {{ product_form.is_featured|materializecss }}
-                </div>
-                <div class="row">
-                  {{ product_form.is_published|materializecss }}
                 </div>
               </div>
             </div>

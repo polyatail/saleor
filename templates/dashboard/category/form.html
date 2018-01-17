@@ -6,11 +6,11 @@
 
 {% block title %}
   {% if category.pk %}
-    {% trans "Edit category" context "Category form page title" %} {{ category }}
+    Edit Company {{ category }}
   {% else %}
-    {% trans "Add new category" context "Category detail page title" %}
+    Add New Company
   {% endif %}
-  - {% trans "Categories" context "Dashboard categories list" %} - {{ block.super }}
+  - Companies - {{ block.super }}
 {% endblock %}
 
 {% block body_class %}body-categories{% endblock %}
@@ -28,8 +28,7 @@
 {% block breadcrumbs %}
   <ul class="breadcrumbs breadcrumbs--history">
     <li>
-      <a href="{% url 'dashboard:category-list' %}" class="breadcrumbs--ellipsed-item">
-        {% trans "Categories" context "Dashboard categories list" %}
+      <a href="{% url 'dashboard:category-list' %}" class="breadcrumbs--ellipsed-item">Companies
       </a>
     </li>
     <li class="back-mobile">
@@ -51,14 +50,12 @@
             </li>
             {% if category.pk %}
               <li>
-                <span class="breadcrumbs--ellipsed-item">
-                  {% trans "Edit" context "Category form page title" %}
+                <span class="breadcrumbs--ellipsed-item">Edit Company
                 </span>
               </li>
             {% else %}
               <li>
-                <span class="breadcrumbs--ellipsed-item">
-                  {% trans "Add new category" context "Category detail breadcrumbs" %}
+                <span class="breadcrumbs--ellipsed-item">Add New Company
                 </span>
               </li>
             {% endif %}

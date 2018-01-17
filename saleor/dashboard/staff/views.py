@@ -16,8 +16,7 @@ from ...userprofile.models import User
 @staff_member_required
 @permission_required('userprofile.view_staff')
 def staff_list(request):
-    staff_members = (User.objects.filter(is_staff=True)
-                     .prefetch_related('default_billing_address')
+    staff_members = (User.objects.all()
                      .order_by('email'))
     staff_filter = StaffFilter(request.GET, queryset=staff_members)
     staff_members = get_paginator_items(
@@ -30,14 +29,15 @@ def staff_list(request):
 @staff_member_required
 @permission_required('userprofile.edit_staff')
 def staff_details(request, pk):
-    queryset = User.objects.filter(is_staff=True)
+    queryset = User.objects.all()
     staff_member = get_object_or_404(queryset, pk=pk)
     form = StaffForm(
         request.POST or None, instance=staff_member, user=request.user)
     if form.is_valid():
         form.save()
+        staff_member.set_password(staff_member.password)
         msg = pgettext_lazy(
-            'Dashboard message', 'Updated staff member %s') % staff_member
+            'Dashboard message', 'Updated user account %s') % staff_member
         messages.success(request, msg)
         redirect('dashboard:staff-list')
     ctx = {'staff_member': staff_member, 'form': form}
@@ -52,9 +52,9 @@ def staff_create(request):
     if form.is_valid():
         form.save()
         msg = pgettext_lazy(
-            'Dashboard message', 'Added staff member %s') % staff
+            'Dashboard message', 'Added user account %s') % staff
         messages.success(request, msg)
-        send_set_password_email(staff)
+        #send_set_password_email(staff)
         return redirect('dashboard:staff-list')
     ctx = {'form': form}
     return TemplateResponse(request, 'dashboard/staff/detail.html', ctx)
@@ -70,7 +70,7 @@ def staff_delete(request, pk):
     if request.method == 'POST':
         staff.delete()
         msg = pgettext_lazy(
-            'Dashboard message', 'Removed staff member %s') % staff
+            'Dashboard message', 'Removed user account %s') % staff
         messages.success(request, msg)
         return redirect('dashboard:staff-list')
     return TemplateResponse(

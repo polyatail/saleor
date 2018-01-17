@@ -7,7 +7,7 @@
 {% load utils %}
 
 {% block title %}
-  {% trans "Staff" context "Dashboard staff members list" %} - {{ block.super }}
+  User Accounts - {{ block.super }}
 {% endblock %}
 
 {% block body_class %}body-customers{% endblock %}
@@ -28,8 +28,7 @@
 
 {% block breadcrumbs %}
   <ul class="breadcrumbs">
-    <li class="visible-s">
-      {% trans "Staff" context "Dashboard staff members list" %}
+    <li class="visible-s">User Accounts
     </li>
   </ul>
 {% endblock %}
@@ -43,13 +42,6 @@
             <table class="bordered highlight responsive data-table">
               <thead>
                 <tr>
-                  {% get_sort_by_toggle 'name' as toggle %}
-                  <th class="{% if toggle.is_active %}active{% endif %}">
-                    <a href="{{ toggle.url }}">
-                      <svg data-src="{{ toggle.sorting_icon }}" />
-                      {% trans "Name" context "Staff members table header" %}
-                    </a>
-                  </th>
                   {% get_sort_by_toggle 'email' as toggle %}
                   <th class="{% if toggle.is_active %}active{% endif %}">
                     <a href="{{ toggle.url }}">
@@ -57,11 +49,22 @@
                       {% trans "Email" context "Staff members table header" %}
                     </a>
                   </th>
-                  {% get_sort_by_toggle 'location' as toggle %}
+                  {% get_sort_by_toggle 'company' as toggle %}
                   <th class="{% if toggle.is_active %}active{% endif %}">
                     <a href="{{ toggle.url }}">
-                      <svg data-src="{{ toggle.sorting_icon }}" />
-                      {% trans "Location" context "Staff members table header" %}
+                      <svg data-src="{{ toggle.sorting_icon }}" />Company
+                    </a>
+                  </th>
+                  {% get_sort_by_toggle 'is_staff' as toggle %}
+                  <th class="{% if toggle.is_active %}active{% endif %}">
+                    <a href="{{ toggle.url }}">
+                      <svg data-src="{{ toggle.sorting_icon }}" />Staff
+                    </a>
+                  </th>
+                  {% get_sort_by_toggle 'is_active' as toggle %}
+                  <th class="{% if toggle.is_active %}active{% endif %}">
+                    <a href="{{ toggle.url }}">
+                      <svg data-src="{{ toggle.sorting_icon }}" />Active
                     </a>
                   </th>
                 </tr>
@@ -69,25 +72,18 @@
               <tbody>
                 {% for user in staff %}
                   <tr data-action-go="{% url "dashboard:staff-details" pk=user.pk %}">
-                    {% with user.default_billing_address as default_address %}
-                      <td>
-                        {% if default_address %}
-                          {{ default_address.first_name }} {{ default_address.last_name }}
-                        {% else %}
-                          -
-                        {% endif %}
-                      </td>
                       <td>
                         {{ user.email }}
                       </td>
                       <td>
-                        {% if default_address %}
-                          {{ default_address.city }}, {{ default_address.get_country_display }}
-                        {% else %}
-                          -
-                        {% endif %}
+                        {{ user.company }}
                       </td>
-                    {% endwith %}
+                      <td>
+                        {{ user.is_staff }}
+                      </td>
+                      <td>
+                        {{ user.is_active }}
+                      </td>
                   </tr>
                 {% endfor %}
               </tbody>

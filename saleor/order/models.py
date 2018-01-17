@@ -40,19 +40,21 @@ class Order(models.Model, ItemSet):
     tracking_client_id = models.CharField(
         pgettext_lazy('Order field', 'tracking client id'),
         max_length=36, blank=True, editable=False)
-    billing_address = models.ForeignKey(
-        Address, related_name='+', editable=False,
-        verbose_name=pgettext_lazy('Order field', 'billing address'),
-        on_delete=models.PROTECT)
-    shipping_address = models.ForeignKey(
-        Address, related_name='+', editable=False, null=True,
-        verbose_name=pgettext_lazy('Order field', 'shipping address'),
-        on_delete=models.PROTECT)
+#    billing_address = models.ForeignKey(
+#        Address, related_name='+', editable=False,
+#        verbose_name=pgettext_lazy('Order field', 'billing address'),
+#        on_delete=models.PROTECT)
+#    shipping_address = models.ForeignKey(
+#        Address, related_name='+', editable=False, null=True,
+#        verbose_name=pgettext_lazy('Order field', 'shipping address'),
+#        on_delete=models.PROTECT)
     user_email = models.EmailField(
         pgettext_lazy('Order field', 'user email'),
         blank=True, default='', editable=False)
     token = models.CharField(
         pgettext_lazy('Order field', 'token'), max_length=36, unique=True)
+    employeeid = models.CharField(
+        pgettext_lazy('Order field', 'employeeid'), max_length=256)
     total_net = PriceField(
         pgettext_lazy('Order field', 'total net'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12, decimal_places=2,

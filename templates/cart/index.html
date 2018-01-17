@@ -27,21 +27,18 @@
   {% if cart_lines %}
     <div class="table__header d-none d-md-block">
       <div class="row">
-        <div class="col-md-7">
+        <div class="col-md-9">
           <small>{% trans "Product" context "Cart table header" %}</small>
         </div>
         <div class="col-md-3">
           <small>{% trans "Quantity" context "Cart table header" %}</small>
-        </div>
-        <div class="col-md-2 text-right">
-          <small>{% trans "Price" context "Cart table header" %}</small>
         </div>
       </div>
     </div>
     {% for line in cart_lines %}
       <div class="cart__line{% if forloop.last %} last{% endif %} table__row">
         <div class="row">
-          <div class="col-7 cart__line__product">
+          <div class="col-9 cart__line__product">
             <a class="link--clean" href="{{ line.variant.get_absolute_url }}">
               <img src="{% get_thumbnail line.variant.product.images.first.image method="crop" size="60x60" %}"
                    srcset="{% get_thumbnail line.variant.product.images.first.image method="crop" size="60x60" %} 1x, {% get_thumbnail line.variant.product.images.first.image method="crop" size="120x120" %} 2x"
@@ -50,7 +47,7 @@
                 <br><small>{{ line.variant }}</small></p>
             </a>
           </div>
-          <div class="col-5">
+          <div class="col-3">
             <div class="row">
               <div class="cart__line__quantity col-md-7 col-12">
                 <form role="form" action="{% url "cart:update-line" variant_id=line.variant.pk %}" method="post" class="form-cart">
@@ -64,20 +61,25 @@
                 </span>
                 <small class="cart__line__quantity-error text-danger"></small>
               </div>
-              <div class="cart-item-price col-md-5 col-12" data-product-id="{{ line.variant.pk }}">
-                <p class="text-right">{% gross line.get_total html=True %}</p>
-              </div>
             </div>
           </div>
         </div>
       </div>
     {% endfor %}
-    <div class="cart__subtotal">
-      {% include 'cart/_subtotal_table.html' %}
-    </div>
+      <div class="cart__total">
+        <div class="row">
+          <div class="col-9 cart__total__subtotal">
+            <h3>Total number of items you are requesting</h3>
+          </div>
+          <div class="col-3">
+              <h3 class="text-left cart-total"><span>{{ quantity }}</span>
+              </h3>
+          </div>
+        </div>
+      </div>
     <div class="row">
-      <div class="col-md-12">
-        <a href="{% url "checkout:login" %}" class="btn primary float-right cart__submit">
+      <div class="col-md-12 text-center">
+        <a href="{% url "checkout:login" %}" class="btn primary cart__submit">
           {% trans "Checkout" context "Cart primary action" %}
         </a>
       </div>
@@ -87,7 +89,6 @@
       <img src="{% static 'images/pirate_cart.png' %}"
            srcset="{% static 'images/pirate_cart.png' %} 1x, {% static 'images/pirate_cart2x.png' %} 2x">
       <h2>{% trans "There are no products in your shopping cart." context "Empty cart message" %}</h2>
-      <a href="/" class="btn primary">{% trans "Check out our sales" context "Empty cart link" %}</a>
     </div>
   {% endif %}
 </div>

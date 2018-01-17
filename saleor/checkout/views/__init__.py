@@ -6,7 +6,7 @@ from .shipping import (anonymous_user_shipping_address_view,
                        user_shipping_address_view)
 from .summary import (
     summary_with_shipping_view, anonymous_summary_without_shipping,
-    summary_without_shipping)
+    summary_without_shipping, summary_no_address)
 from .validators import (
     validate_cart, validate_shipping_address,
     validate_shipping_method, validate_is_shipping_required)
@@ -63,14 +63,16 @@ def shipping_method_view(request, checkout):
 @add_voucher_form
 def summary_view(request, checkout):
     """Display the correct order summary."""
-    if checkout.is_shipping_required:
-        view = validate_shipping_address(summary_with_shipping_view)
-        view = validate_shipping_method(view)
-        return view(request, checkout)
-    elif request.user.is_authenticated:
-        return summary_without_shipping(request, checkout)
-    else:
-        return anonymous_summary_without_shipping(request, checkout)
+    return summary_no_address(request, checkout)
+
+#    if checkout.is_shipping_required:
+#        view = validate_shipping_address(summary_with_shipping_view)
+#        view = validate_shipping_method(view)
+#        return view(request, checkout)
+#    elif request.user.is_authenticated:
+#        return summary_without_shipping(request, checkout)
+#    else:
+#        return anonymous_summary_without_shipping(request, checkout)
 
 
 @load_checkout

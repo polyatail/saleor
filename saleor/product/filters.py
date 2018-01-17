@@ -9,8 +9,7 @@ from ..core.filters import SortedFilterSet
 from .models import Product, ProductAttribute
 
 SORT_BY_FIELDS = {
-    'name': pgettext_lazy('Product list sorting option', 'name'),
-    'price': pgettext_lazy('Product list sorting option', 'price')}
+    'name': pgettext_lazy('Product list sorting option', 'name'),}
 
 
 class ProductFilter(SortedFilterSet):
@@ -21,7 +20,7 @@ class ProductFilter(SortedFilterSet):
 
     class Meta:
         model = Product
-        fields = ['price']
+        fields = []
         filter_overrides = {PriceField: {'filter_class': RangeFilter}}
 
     def __init__(self, *args, **kwargs):

@@ -110,8 +110,8 @@ class Checkout:
                 shipping_cost = self.shipping_method.get_total()
             else:
                 shipping_cost = Price(0, currency=settings.DEFAULT_CURRENCY)
-            total_with_shipping = partition.get_total(
-                discounts=self.cart.discounts) + shipping_cost
+            total_with_shipping = 0.0 #partition.get_total(
+                #discounts=self.cart.discounts) + shipping_cost
 
             partition = [
                 (item,
@@ -180,6 +180,18 @@ class Checkout:
     def email(self, email):
         self.storage['email'] = email
         self.modified = True
+
+    @property
+    def employeeid(self):
+        """ Custom field for Grace """
+        try:
+          return self.storage['employeeid']
+        except KeyError:
+          return None
+
+    @employeeid.setter
+    def employeeid(self, employeeid):
+        self.storage['employeeid'] = employeeid
 
     @property
     def billing_address(self):
@@ -286,22 +298,21 @@ class Checkout:
             # Voucher expired in meantime, abort order placement
             return
 
-        if self.is_shipping_required:
-            shipping_address = self._save_order_shipping_address()
-            self._add_to_user_address_book(
-                self.shipping_address, is_shipping=True)
-        else:
-            shipping_address = None
-        billing_address = self._save_order_billing_address()
-        self._add_to_user_address_book(
-            self.billing_address, is_billing=True)
+#        if self.is_shipping_required:
+#            shipping_address = self._save_order_shipping_address()
+#            self._add_to_user_address_book(
+#                self.shipping_address, is_shipping=True)
+#        else:
+#            shipping_address = None
+#        billing_address = self._save_order_billing_address()
+#        self._add_to_user_address_book(
+#            self.billing_address, is_billing=True)
 
         order_data = {
             'language_code': get_language(),
-            'billing_address': billing_address,
-            'shipping_address': shipping_address,
-            'tracking_client_id': self.tracking_code,
-            'total': self.get_total()}
+#            'billing_address': billing_address,
+#            'shipping_address': shipping_address,
+            'tracking_client_id': self.tracking_code}
 
         if self.user.is_authenticated:
             order_data['user'] = self.user
@@ -315,6 +326,8 @@ class Checkout:
             order_data['voucher'] = voucher
             order_data['discount_amount'] = discount.amount
             order_data['discount_name'] = discount.name
+
+        order_data['employeeid'] = self.employeeid
 
         order = Order.objects.create(**order_data)
 
@@ -370,7 +383,7 @@ class Checkout:
         cost_iterator = (
             total - shipping_cost
             for shipment, shipping_cost, total in self.deliveries)
-        total = sum(cost_iterator, zero)
+        total = 0.0 #sum(cost_iterator, zero)
         return total
 
     def get_total(self):
@@ -379,8 +392,8 @@ class Checkout:
         cost_iterator = (
             total
             for shipment, shipping_cost, total in self.deliveries)
-        total = sum(cost_iterator, zero)
-        return total if self.discount is None else self.discount.apply(total)
+        total = 0.0 #sum(cost_iterator, zero)
+        return total #if self.discount is None else self.discount.apply(total)
 
     def get_total_shipping(self):
         """Calculate shipping total."""
@@ -388,7 +401,7 @@ class Checkout:
         cost_iterator = (
             shipping_cost
             for shipment, shipping_cost, total in self.deliveries)
-        total = sum(cost_iterator, zero)
+        total = 0.0 #sum(cost_iterator, zero)
         return total
 
 

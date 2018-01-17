@@ -29,7 +29,7 @@ def create_order(checkout):
         status=OrderStatus.NEW, user=user, comment=pgettext_lazy(
             'Order status history entry', 'Order was placed'))
     order.send_confirmation_email()
-    return order, redirect('order:payment', token=order.token)
+    return order, redirect('order:confirmation', token=order.token)
 
 
 def handle_order_placement(request, checkout):
@@ -180,3 +180,15 @@ def summary_without_shipping(request, checkout):
         request, 'checkout/summary_without_shipping.html', context={
             'addresses_form': addresses_form, 'address_form': address_form,
             'checkout': checkout, 'additional_addresses': user_addresses})
+
+def summary_no_address(request, checkout):
+    if "employeeid" in request.POST:
+        if request.POST["employeeid"]:
+            checkout.employeeid = request.POST["employeeid"]
+            return handle_order_placement(request, checkout)
+        else:
+            msg = pgettext('Checkout warning', 'Employee ID is a required field.')
+            messages.warning(request, msg)
+
+    return TemplateResponse(request, 'checkout/details.html',
+                            context={'checkout': checkout})

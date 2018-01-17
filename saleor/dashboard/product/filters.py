@@ -36,22 +36,12 @@ class ProductFilter(SortedFilterSet):
         label=pgettext_lazy('Product list filter label', 'Name'),
         lookup_expr='icontains')
     categories = ModelMultipleChoiceFilter(
-        label=pgettext_lazy('Product list filter label', 'Categories'),
+        label=pgettext_lazy('Product list filter label', 'Company'),
         name='categories',
         queryset=Category.objects.all())
-    price = RangeFilter(
-        label=pgettext_lazy('Product list filter label', 'Price'),
-        name='price',
-        widget=PriceRangeWidget)
     is_published = ChoiceFilter(
         label=pgettext_lazy('Product list filter label', 'Is published'),
         choices=PUBLISHED_CHOICES,
-        empty_label=pgettext_lazy('Filter empty choice label', 'All'),
-        widget=forms.Select)
-    is_featured = ChoiceFilter(
-        label=pgettext_lazy(
-            'Product list is featured filter label', 'Is featured'),
-        choices=FEATURED_CHOICES,
         empty_label=pgettext_lazy('Filter empty choice label', 'All'),
         widget=forms.Select)
     sort_by = OrderingFilter(

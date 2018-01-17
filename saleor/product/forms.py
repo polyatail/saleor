@@ -17,7 +17,7 @@ class VariantChoiceField(forms.ModelChoiceField):
             'Variant choice field label',
             '%(variant_label)s - %(price)s') % {
                 'variant_label': variant_label,
-                'price': gross(obj.get_price(discounts=self.discounts))}
+                'price': None}
         return label
 
 

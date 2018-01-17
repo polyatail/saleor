@@ -10,6 +10,8 @@ urlpatterns = [
         views.payment, name='payment'),
     url(r'^%s/payment/(?P<variant>[-\w]+)/$' % (TOKEN_PATTERN,),
         views.start_payment, name='payment'),
+    url(r'^%s/confirmation/$' % (TOKEN_PATTERN,),
+        views.confirmation, name='confirmation'),
     url(r'^%s/cancel-payment/$' % (TOKEN_PATTERN,), views.cancel_payment,
         name='cancel-payment'),
     url(r'^%s/create-password/$' % (TOKEN_PATTERN,),

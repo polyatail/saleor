@@ -57,39 +57,39 @@ ProductAvailability = namedtuple(
 
 
 def get_availability(product, discounts=None, local_currency=None):
-    # In default currency
-    price_range = product.get_price_range(discounts=discounts)
-    undiscounted = product.get_price_range()
-    if undiscounted.min_price > price_range.min_price:
-        discount = undiscounted.min_price - price_range.min_price
-    else:
-        discount = None
-
-    # Local currency
-    if local_currency:
-        price_range_local = to_local_currency(
-            price_range, local_currency)
-        undiscounted_local = to_local_currency(
-            undiscounted, local_currency)
-        if (undiscounted_local and
-                undiscounted_local.min_price > price_range_local.min_price):
-            discount_local_currency = (
-                undiscounted_local.min_price - price_range_local.min_price)
-        else:
-            discount_local_currency = None
-    else:
-        price_range_local = None
-        discount_local_currency = None
+#    # In default currency
+#    price_range = product.get_price_range(discounts=discounts)
+#    undiscounted = product.get_price_range()
+#    if undiscounted.min_price > price_range.min_price:
+#        discount = undiscounted.min_price - price_range.min_price
+#    else:
+#        discount = None
+#
+#    # Local currency
+#    if local_currency:
+#        price_range_local = to_local_currency(
+#            price_range, local_currency)
+#        undiscounted_local = to_local_currency(
+#            undiscounted, local_currency)
+#        if (undiscounted_local and
+#                undiscounted_local.min_price > price_range_local.min_price):
+#            discount_local_currency = (
+#                undiscounted_local.min_price - price_range_local.min_price)
+#        else:
+#            discount_local_currency = None
+#    else:
+#        price_range_local = None
+#        discount_local_currency = None
 
     is_available = product.is_in_stock() and product.is_available()
 
     return ProductAvailability(
         available=is_available,
-        price_range=price_range,
-        price_range_undiscounted=undiscounted,
-        discount=discount,
-        price_range_local_currency=price_range_local,
-        discount_local_currency=discount_local_currency)
+        price_range=0.0,
+        price_range_undiscounted=0.0,
+        discount=0.0,
+        price_range_local_currency=0.0,
+        discount_local_currency=0.0)
 
 
 def handle_cart_form(request, product, create_cart=False):
@@ -164,8 +164,8 @@ def get_variant_picker_data(product, discounts=None, local_currency=None):
 
         schema_data = {'@type': 'Offer',
                        'itemCondition': 'http://schema.org/NewCondition',
-                       'priceCurrency': price.currency,
-                       'price': price.net}
+                       'priceCurrency': None,
+                       'price': None}
 
         if variant.is_in_stock():
             schema_data['availability'] = 'http://schema.org/InStock'
@@ -263,31 +263,8 @@ def get_attributes_display_map(obj, attributes):
 
 
 def get_product_availability_status(product):
-    from .models import Stock
-
-    is_available = product.is_available()
-    has_stock_records = Stock.objects.filter(variant__product=product)
-    are_all_variants_in_stock = all(
-        variant.is_in_stock() for variant in product.variants.all())
-    is_in_stock = any(
-        variant.is_in_stock() for variant in product.variants.all())
-    requires_variants = product.product_class.has_variants
-
     if not product.is_published:
         return ProductAvailabilityStatus.NOT_PUBLISHED
-    elif requires_variants and not product.variants.exists():
-        # We check the requires_variants flag here in order to not show this
-        # status with product classes that don't require variants, as in that
-        # case variants are hidden from the UI and user doesn't manage them.
-        return ProductAvailabilityStatus.VARIANTS_MISSSING
-    elif not has_stock_records:
-        return ProductAvailabilityStatus.NOT_CARRIED
-    elif not is_in_stock:
-        return ProductAvailabilityStatus.OUT_OF_STOCK
-    elif not are_all_variants_in_stock:
-        return ProductAvailabilityStatus.LOW_STOCK
-    elif not is_available and product.available_on is not None:
-        return ProductAvailabilityStatus.NOT_YET_AVAILABLE
     else:
         return ProductAvailabilityStatus.READY_FOR_PURCHASE
 

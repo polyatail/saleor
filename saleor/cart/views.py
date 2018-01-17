@@ -27,14 +27,15 @@ def index(request, cart):
     except Cart.DoesNotExist:
         pass
 
+
     for line in cart.lines.all():
         initial = {'quantity': line.get_quantity()}
         form = ReplaceCartLineForm(None, cart=cart, variant=line.variant,
                                    initial=initial, discounts=discounts)
         cart_lines.append({
             'variant': line.variant,
-            'get_price_per_item': line.get_price_per_item(discounts),
-            'get_total': line.get_total(discounts=discounts),
+            'get_price_per_item': None,
+            'get_total': None,
             'form': form})
 
     default_country = get_user_shipping_country(request)
@@ -42,8 +43,9 @@ def index(request, cart):
     default_country_options = get_shipment_options(default_country)
 
     cart_data = get_cart_data(
-        cart, default_country_options, request.currency, request.discounts)
+        cart, default_country_options, None, None)
     ctx = {
+        'quantity': cart.quantity,
         'cart_lines': cart_lines,
         'country_form': country_form,
         'default_country_options': default_country_options}
@@ -96,13 +98,13 @@ def update(request, cart, variant_id):
                 updated_line.get_total(discounts=discounts).gross,
                 updated_line.get_total(discounts=discounts).currency)
         if cart:
-            cart_total = cart.get_total(discounts=discounts)
-            response['total'] = currencyfmt(
-                cart_total.gross, cart_total.currency)
-            local_cart_total = to_local_currency(cart_total, request.currency)
+            cart_total = 0.0 #cart.get_total(discounts=discounts)
+            response['total'] = 0.0 #currencyfmt(
+                #cart_total.gross, cart_total.currency)
+            local_cart_total = 0.0 #to_local_currency(cart_total, request.currency)
             if local_cart_total:
-                response['localTotal'] = currencyfmt(
-                    local_cart_total.gross, local_cart_total.currency)
+                response['localTotal'] = 0.0 #currencyfmt(
+      #              local_cart_total.gross, local_cart_total.currency)
         status = 200
     elif request.POST is not None:
         response = {'error': form.errors}
@@ -125,19 +127,19 @@ def summary(request, cart):
             'quantity': line.quantity,
             'attributes': line.variant.display_variant(attributes),
             'image': first_image,
-            'price_per_item': currencyfmt(
-                price_per_item.gross, price_per_item.currency),
-            'line_total': currencyfmt(line_total.gross, line_total.currency),
+            'price_per_item': 0.0, #currencyfmt(
+                #price_per_item.gross, price_per_item.currency),
+            'line_total': 0.0, #currencyfmt(line_total.gross, line_total.currency),
             'update_url': reverse(
                 'cart:update-line', kwargs={'variant_id': line.variant_id}),
             'variant_url': line.variant.get_absolute_url()}
     if cart.quantity == 0:
         data = {'quantity': 0}
     else:
-        cart_total = cart.get_total(discounts=request.discounts)
+        cart_total = 0.0 #cart.get_total(discounts=request.discounts)
         data = {
             'quantity': cart.quantity,
-            'total': currencyfmt(cart_total.gross, cart_total.currency),
+            'total': 0.0, #currencyfmt(cart_total.gross, cart_total.currency),
             'lines': [prepare_line_data(line) for line in cart.lines.all()]}
 
     return render(request, 'cart-dropdown.html', data)

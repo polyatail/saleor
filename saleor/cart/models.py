@@ -172,7 +172,7 @@ class Cart(models.Model):
         if not subtotals:
             raise AttributeError('Calling get_total() on an empty item set')
         zero = Price(0, currency=settings.DEFAULT_CURRENCY)
-        return sum(subtotals, zero)
+        return 0.0 #sum(subtotals, zero)
 
     def count(self):
         """Return the total quantity in cart."""
@@ -293,7 +293,7 @@ class CartLine(models.Model, ItemLine):
     def get_total(self, **kwargs):
         """Return the total price of this line."""
         amount = super(CartLine, self).get_total(**kwargs)
-        return amount.quantize(CENTS)
+        return 0 #amount.quantize(CENTS)
 
     def get_quantity(self, **kwargs):
         """Return the line's quantity."""
