@@ -30,8 +30,6 @@ def check_order_status(func):
 
 def cancel_order(order):
     """Cancells order by cancelling all associated shipment groups."""
-    for group in order.groups.all():
-        cancel_delivery_group(group, cancel_order=False)
     order.status = OrderStatus.CANCELLED
     order.save()
 
@@ -39,20 +37,7 @@ def cancel_order(order):
 def recalculate_order(order):
     """Recalculates and assigns total price of order.
     Total price is a sum of items and shippings in order shipment groups. """
-    prices = [
-        group.get_total() for group in order
-        if group.status != OrderStatus.CANCELLED]
-    total_net = sum(p.net for p in prices)
-    total_gross = sum(p.gross for p in prices)
-    total = Price(
-        net=total_net, gross=total_gross,
-        currency=settings.DEFAULT_CURRENCY)
-    shipping = [group.shipping_price for group in order]
-    total_shipping = (
-        sum(shipping[1:], shipping[0]) if shipping
-        else Price(0, currency=settings.DEFAULT_CURRENCY))
-    total += total_shipping
-    order.total = total
+    order.total = 0
     order.save()
 
 
@@ -85,33 +70,11 @@ def add_variant_to_delivery_group(
     Order lines are created by increasing quantity of lines,
     as long as total_quantity of variant will be added.
     """
-    quantity_left = (
-        add_variant_to_existing_lines(
-            group, variant, total_quantity) if add_to_existing
-        else total_quantity)
-    price = variant.get_price_per_item(discounts)
-    while quantity_left > 0:
-        stock = variant.select_stockrecord()
-        if not stock:
-            raise InsufficientStock(variant)
-        quantity = (
-            stock.quantity_available
-            if quantity_left > stock.quantity_available
-            else quantity_left
-        )
-        group.lines.create(
-            product=variant.product,
-            product_name=variant.display_product(),
-            product_sku=variant.sku,
-            quantity=quantity,
-            unit_price_net=price.net,
-            unit_price_gross=price.gross,
-            stock=stock,
-            stock_location=stock.location.name)
-        Stock.objects.allocate_stock(stock, quantity)
-        # refresh stock for accessing quantity_allocated
-        stock.refresh_from_db()
-        quantity_left -= quantity
+    group.lines.create(
+        product=variant.product,
+        product_name=variant.display_product(),
+        product_sku=variant.sku,
+        quantity=total_quantity)
 
 
 def add_variant_to_existing_lines(group, variant, total_quantity):
@@ -178,9 +141,9 @@ def change_order_line_quantity(line, new_quantity):
     line.quantity = new_quantity
     line.save()
 
-    if not line.delivery_group.get_total_quantity():
-        line.delivery_group.delete()
-        order = line.delivery_group.order
+    if not line.quantity:
+        order = line.order
+        line.delete()
         if not order.get_lines():
             order.status = OrderStatus.CANCELLED
             order.save()
@@ -190,18 +153,16 @@ def change_order_line_quantity(line, new_quantity):
                     'Order cancelled. No items in order'))
 
 
-def remove_empty_groups(line, force=False):
+def remove_empty_groups(line):
     """Removes order line and associated shipment group and order.
     Remove is done only if quantity of order line or items in group or in order
     is equal to 0."""
-    source_group = line.delivery_group
-    order = source_group.order
+    order = line.order
     if line.quantity:
         line.save()
     else:
         line.delete()
-    if not source_group.get_total_quantity() or force:
-        source_group.delete()
+
     if not order.get_lines():
         order.status = OrderStatus.CANCELLED
         order.save()
@@ -211,22 +172,3 @@ def remove_empty_groups(line, force=False):
                 'Order cancelled. No items in order'))
 
 
-def move_order_line_to_group(line, target_group, quantity):
-    """Moves given quantity of order line to another shipment group."""
-    try:
-        target_line = target_group.lines.get(
-            product=line.product, product_name=line.product_name,
-            product_sku=line.product_sku, stock=line.stock)
-    except OrderLine.DoesNotExist:
-        target_group.lines.create(
-            delivery_group=target_group, product=line.product,
-            product_name=line.product_name, product_sku=line.product_sku,
-            quantity=quantity, unit_price_net=line.unit_price_net,
-            stock=line.stock,
-            stock_location=line.stock_location,
-            unit_price_gross=line.unit_price_gross)
-    else:
-        target_line.quantity += quantity
-        target_line.save()
-    line.quantity -= quantity
-    remove_empty_groups(line)

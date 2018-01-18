@@ -3,12 +3,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django_babel.templatetags.babel import currencyfmt
 
-from ..core.utils import get_user_shipping_country, to_local_currency
+from .forms import ReplaceCartLineForm
 from ..product.models import ProductVariant
-from ..shipping.utils import get_shipment_options
-from .forms import CountryForm, ReplaceCartLineForm
 from .models import Cart
 from .utils import (
     check_product_availability_and_warn, get_cart_data, get_or_empty_db_cart)
@@ -17,7 +14,6 @@ from .utils import (
 @get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
 def index(request, cart):
     """Display cart details."""
-    discounts = request.discounts
     cart_lines = []
     check_product_availability_and_warn(request, cart)
 
@@ -27,50 +23,21 @@ def index(request, cart):
     except Cart.DoesNotExist:
         pass
 
-
     for line in cart.lines.all():
         initial = {'quantity': line.get_quantity()}
         form = ReplaceCartLineForm(None, cart=cart, variant=line.variant,
-                                   initial=initial, discounts=discounts)
+                                   initial=initial)
         cart_lines.append({
             'variant': line.variant,
-            'get_price_per_item': None,
-            'get_total': None,
             'form': form})
 
-    default_country = get_user_shipping_country(request)
-    country_form = CountryForm(initial={'country': default_country})
-    default_country_options = get_shipment_options(default_country)
-
-    cart_data = get_cart_data(
-        cart, default_country_options, None, None)
     ctx = {
         'quantity': cart.quantity,
         'cart_lines': cart_lines,
-        'country_form': country_form,
-        'default_country_options': default_country_options}
-    ctx.update(cart_data)
+          }
 
     return TemplateResponse(
         request, 'cart/index.html', ctx)
-
-
-@get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
-def get_shipping_options(request, cart):
-    """Display shipping options to get a price estimate."""
-    country_form = CountryForm(request.POST or None)
-    if country_form.is_valid():
-        shipments = country_form.get_shipment_options()
-    else:
-        shipments = None
-    ctx = {
-        'default_country_options': shipments,
-        'country_form': country_form}
-    cart_data = get_cart_data(
-        cart, shipments, request.currency, request.discounts)
-    ctx.update(cart_data)
-    return TemplateResponse(
-        request, 'cart/_subtotal_table.html', ctx)
 
 
 @get_or_empty_db_cart()
@@ -87,24 +54,10 @@ def update(request, cart, variant_id):
         form.save()
         response = {
             'variantId': variant_id,
-            'subtotal': 0,
-            'total': 0,
             'cart': {
                 'numItems': cart.quantity,
                 'numLines': len(cart)}}
         updated_line = cart.get_line(form.cart_line.variant)
-        if updated_line:
-            response['subtotal'] = currencyfmt(
-                updated_line.get_total(discounts=discounts).gross,
-                updated_line.get_total(discounts=discounts).currency)
-        if cart:
-            cart_total = 0.0 #cart.get_total(discounts=discounts)
-            response['total'] = 0.0 #currencyfmt(
-                #cart_total.gross, cart_total.currency)
-            local_cart_total = 0.0 #to_local_currency(cart_total, request.currency)
-            if local_cart_total:
-                response['localTotal'] = 0.0 #currencyfmt(
-      #              local_cart_total.gross, local_cart_total.currency)
         status = 200
     elif request.POST is not None:
         response = {'error': form.errors}
@@ -119,27 +72,20 @@ def summary(request, cart):
         product_class = line.variant.product.product_class
         attributes = product_class.variant_attributes.all()
         first_image = line.variant.get_first_image()
-        price_per_item = line.get_price_per_item(discounts=request.discounts)
-        line_total = line.get_total(discounts=request.discounts)
         return {
             'product': line.variant.product,
             'variant': line.variant.name,
             'quantity': line.quantity,
             'attributes': line.variant.display_variant(attributes),
             'image': first_image,
-            'price_per_item': 0.0, #currencyfmt(
-                #price_per_item.gross, price_per_item.currency),
-            'line_total': 0.0, #currencyfmt(line_total.gross, line_total.currency),
             'update_url': reverse(
                 'cart:update-line', kwargs={'variant_id': line.variant_id}),
             'variant_url': line.variant.get_absolute_url()}
     if cart.quantity == 0:
         data = {'quantity': 0}
     else:
-        cart_total = 0.0 #cart.get_total(discounts=request.discounts)
         data = {
             'quantity': cart.quantity,
-            'total': 0.0, #currencyfmt(cart_total.gross, cart_total.currency),
             'lines': [prepare_line_data(line) for line in cart.lines.all()]}
 
     return render(request, 'cart-dropdown.html', data)

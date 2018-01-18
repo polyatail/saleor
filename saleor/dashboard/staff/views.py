@@ -33,10 +33,13 @@ def staff_details(request, pk):
     staff_member = get_object_or_404(queryset, pk=pk)
     form = StaffForm(
         request.POST or None, instance=staff_member, user=request.user)
+    prior_pw = staff_member.password
     if form.is_valid():
-        form.instance.set_password(form.instance.password)
+        if form.instance.password:
+          form.instance.set_password(form.instance.password)
+        else:
+          form.instance.password = prior_pw
         form.save()
-        import pdb; pdb.set_trace()
         msg = pgettext_lazy(
             'Dashboard message', 'Updated user account %s') % staff_member
         messages.success(request, msg)

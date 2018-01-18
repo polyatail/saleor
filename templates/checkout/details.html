@@ -24,52 +24,46 @@
 {% endblock %}
 
 {% block content %}
-        {% with total=checkout.get_total %}
-          <div class="checkout__review">
-              <div class="row">
-                <div class="col-8">ITEM</div>
-                <div class="col-4"><p class="float-right">QUANTITY</p></div>
-              </div>
-            {% for shipment, shipment_cost, total_with_shipment in checkout.deliveries %}
-              {% for item, item_price_per_item, item_price_total in shipment %}
-                <div class="row">
-                  <div class="col-8">
-                    <p><strong>{{ item.variant.product }}</strong><br>
-                      <span class="checkout__review__variant">{{ item.variant }}</span></p>
-                  </div>
-                  <div class="col-4">
-                    <p class="float-right">{{ item.quantity }}</p>
-                  </div>
-                </div>
-              {% endfor %}
-            {% endfor %}
-            {% block forms %}
-            <form method="post" novalidate>
-            {% csrf_token %}
-            <div class="row checkout__review__section">
-              <div class="col-4">
-                <h3>Employee ID Number</h3>
-                <input class="form-control" maxlength="32" name="employeeid" title="" type="text">
-                <br>
-              </div>
-            </div>
-            <div class="row checkout__review__section">
-              <div class="col-8">
-                <h3>TOTAL ITEMS REQUESTED</h3>
-              </div>
-              <div class="col-4">
-                <h3 class="float-right">{{ checkout.cart.quantity }}</h3>
-              </div>
-            </div>
-            <div class="row checkout__review__section">
-              <div class="col-12 text-center">
-                <button type="submit" class="btn primary">PLACE ORDER
-                </button>
-              </div>
-          </div>
-          </form>
-        {% endblock forms %}
-        {% endwith %}
-      </div>
+<div class="checkout__review">
+  <div class="row">
+    <div class="col-8">ITEM</div>
+    <div class="col-4"><p class="float-right">QUANTITY</p></div>
   </div>
+  {% for item in lines %}
+    <div class="row">
+      <div class="col-8">
+        <p><strong>{{ item.variant.product }}</strong><br>
+          <span class="checkout__review__variant">{{ item.variant }}</span></p>
+      </div>
+      <div class="col-4">
+        <p class="float-right">{{ item.quantity }}</p>
+      </div>
+    </div>
+  {% endfor %}
+  {% block forms %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="row checkout__review__section">
+      <div class="col-4">
+        <h3>Employee ID Number</h3>
+        <input class="form-control" maxlength="32" name="employeeid" title="" type="text">
+        <br>
+      </div>
+    </div>
+    <div class="row checkout__review__section">
+      <div class="col-8">
+        <h3>TOTAL ITEMS REQUESTED</h3>
+      </div>
+      <div class="col-4">
+        <h3 class="float-right">{{ checkout.cart.quantity }}</h3>
+      </div>
+    </div>
+    <div class="row checkout__review__section">
+      <div class="col-12 text-center">
+        <button type="submit" class="btn primary">PLACE ORDER</button>
+      </div>
+    </div>
+  </form>
+  {% endblock forms %}
+</div>
 {% endblock content %}

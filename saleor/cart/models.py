@@ -98,17 +98,9 @@ class Cart(models.Model):
     token = models.UUIDField(
         pgettext_lazy('Cart field', 'token'),
         primary_key=True, default=uuid4, editable=False)
-    voucher = models.ForeignKey(
-        'discount.Voucher', null=True, related_name='+',
-        on_delete=models.SET_NULL,
-        verbose_name=pgettext_lazy('Cart field', 'token'))
     checkout_data = JSONField(
         verbose_name=pgettext_lazy('Cart field', 'checkout data'), null=True,
         editable=False,)
-    total = PriceField(
-        pgettext_lazy('Cart field', 'total'),
-        currency=settings.DEFAULT_CURRENCY, max_digits=12, decimal_places=2,
-        default=0)
     quantity = models.PositiveIntegerField(
         pgettext_lazy('Cart field', 'quantity'), default=0)
 
@@ -150,29 +142,11 @@ class Cart(models.Model):
         self.user = user
         self.save(update_fields=['user'])
 
-    def is_shipping_required(self):
-        """Return `True` if any of the lines requires shipping."""
-        return any(line.is_shipping_required() for line in self.lines.all())
-
     def __repr__(self):
         return 'Cart(quantity=%s)' % (self.quantity,)
 
     def __len__(self):
         return self.lines.count()
-
-    # pylint: disable=R0201
-    def get_subtotal(self, item, **kwargs):
-        """Return the cost of a cart line."""
-        return item.get_total(**kwargs)
-
-    def get_total(self, **kwargs):
-        """Return the total cost of the cart prior to shipping."""
-        subtotals = [
-            self.get_subtotal(item, **kwargs) for item in self.lines.all()]
-        if not subtotals:
-            raise AttributeError('Calling get_total() on an empty item set')
-        zero = Price(0, currency=settings.DEFAULT_CURRENCY)
-        return 0.0 #sum(subtotals, zero)
 
     def count(self):
         """Return the total quantity in cart."""
@@ -234,12 +208,6 @@ class Cart(models.Model):
             cart_line.save(update_fields=['quantity'])
         self.update_quantity()
 
-    def partition(self):
-        """Split the card into a list of groups for shipping."""
-        grouper = (
-            lambda p: 'physical' if p.is_shipping_required() else 'digital')
-        return partition(self.lines.all(), grouper, ProductGroup)
-
 
 class CartLine(models.Model, ItemLine):
     """A single cart line.
@@ -290,20 +258,6 @@ class CartLine(models.Model, ItemLine):
     def __setstate__(self, data):
         self.variant, self.quantity, self.data = data
 
-    def get_total(self, **kwargs):
-        """Return the total price of this line."""
-        amount = super(CartLine, self).get_total(**kwargs)
-        return 0 #amount.quantize(CENTS)
-
     def get_quantity(self, **kwargs):
         """Return the line's quantity."""
         return self.quantity
-
-    # pylint: disable=W0221
-    def get_price_per_item(self, discounts=None, **kwargs):
-        """Return the unit price of the line."""
-        return 0 #self.variant.get_price_per_item(discounts=discounts, **kwargs)
-
-    def is_shipping_required(self):
-        """Return `True` if the related product variant requires shipping."""
-        return self.variant.is_shipping_required()

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import get_template
 
-from ...order.models import DeliveryGroup, Order
+from ...order.models import Order
 
 INVOICE_TEMPLATE = 'dashboard/order/pdf/invoice.html'
 PACKING_SLIP_TEMPLATE = 'dashboard/order/pdf/packing_slip.html'

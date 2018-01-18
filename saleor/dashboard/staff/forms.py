@@ -11,9 +11,8 @@ class StaffForm(forms.ModelForm):
         if self.user == self.instance:
             self.fields['is_staff'].disabled = True
             self.fields['is_active'].disabled = True
-        #import pdb; pdb.set_trace()
         password = forms.CharField(
-          widget=forms.PasswordInput(attrs=dict(required=True, max_length=30, render_value=True)), label="Password")
+          widget=forms.PasswordInput, required=False, max_length=30, label="Password")
         self.fields.update({"password": password})
 
     class Meta:

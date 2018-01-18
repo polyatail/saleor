@@ -50,6 +50,12 @@ def product_details(request, slug, product_id, form=None):
     """
     products = products_with_details(user=request.user)
     product = get_object_or_404(products, id=product_id)
+
+    # if not allowed to access this item, redirect to user's home page
+    if request.user.company.id not in product.categories.values_list("id")[0]:
+      return redirect('product:category', permanent=True, path=request.user.company.get_full_path(),
+                      category_id=request.user.company.id)
+
     if product.get_slug() != slug:
         return HttpResponsePermanentRedirect(product.get_absolute_url())
     today = datetime.date.today()
@@ -107,6 +113,8 @@ def product_add_to_cart(request, slug, product_id):
 
 
 def category_index(request, path, category_id):
+    category_id = request.user.company.id
+
     category = get_object_or_404(Category, id=category_id)
     actual_path = category.get_full_path()
     if actual_path != path:

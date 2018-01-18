@@ -7,7 +7,7 @@ from django.db.models import Q, Sum
 from django.template.response import TemplateResponse
 from payments import PaymentStatus
 
-from ..order.models import Order, Payment
+from ..order.models import Order
 from ..order import OrderStatus
 from ..product.models import Product
 
@@ -34,18 +34,7 @@ def superuser_required(view_func=None, redirect_field_name=REDIRECT_FIELD_NAME,
 
 @staff_member_required
 def index(request):
-    orders_to_ship = Order.objects.filter(status=OrderStatus.FULLY_PAID)
-    orders_to_ship = (orders_to_ship
-                      .select_related('user')
-                      .prefetch_related('groups', 'groups__lines', 'payments'))
-    payments = Payment.objects.filter(
-        status=PaymentStatus.PREAUTH).order_by('-created')
-    payments = payments.select_related('order', 'order__user')
-    low_stock = get_low_stock_products()
-    ctx = {'preauthorized_payments': payments,
-           'orders_to_ship': orders_to_ship,
-           'low_stock': low_stock}
-    return TemplateResponse(request, 'dashboard/index.html', ctx)
+    return TemplateResponse(request, 'dashboard/index.html')
 
 
 @staff_member_required

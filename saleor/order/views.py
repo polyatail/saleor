@@ -10,8 +10,8 @@ from django.template.response import TemplateResponse
 from django.utils.translation import pgettext_lazy
 from payments import PaymentStatus, RedirectNeeded
 
-from .forms import PaymentDeleteForm, PaymentMethodsForm, PasswordForm
-from .models import Order, Payment
+from .forms import PasswordForm
+from .models import Order
 from .utils import attach_order_to_user, check_order_status
 from ..core.utils import get_client_ip
 from ..registration.forms import LoginForm
@@ -32,10 +32,7 @@ def details(request, token):
 
 
 def confirmation(request, token):
-    orders = Order.objects.prefetch_related('groups__lines__product')
-    order = get_object_or_404(orders, token=token)
-    groups = order.groups.all()
-    payments = order.payments.all()
+    order = Order.objects.filter(token=token)[0]
     form_data = request.POST or None
     return TemplateResponse(request, 'order/confirmation.html',
                             {'order': order})
