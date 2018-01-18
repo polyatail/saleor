@@ -53,8 +53,7 @@ def product_details(request, slug, product_id, form=None):
     if product.get_slug() != slug:
         return HttpResponsePermanentRedirect(product.get_absolute_url())
     today = datetime.date.today()
-    is_visible = (
-        product.available_on is None or product.available_on <= today)
+    is_visible = True
     if form is None:
         form = handle_cart_form(request, product, create_cart=False)[0]
     availability = get_availability(product, discounts=request.discounts,

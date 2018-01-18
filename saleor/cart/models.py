@@ -302,7 +302,7 @@ class CartLine(models.Model, ItemLine):
     # pylint: disable=W0221
     def get_price_per_item(self, discounts=None, **kwargs):
         """Return the unit price of the line."""
-        return self.variant.get_price_per_item(discounts=discounts, **kwargs)
+        return 0 #self.variant.get_price_per_item(discounts=discounts, **kwargs)
 
     def is_shipping_required(self):
         """Return `True` if the related product variant requires shipping."""

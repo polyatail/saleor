@@ -18,8 +18,6 @@ from satchless.item import InsufficientStock, Item, ItemRange
 from text_unidecode import unidecode
 from versatileimagefield.fields import PPOIField, VersatileImageField
 
-from ..discount.models import calculate_discounted_price
-from .utils import get_attributes_display_map
 
 
 class Category(MPTTModel):
@@ -33,8 +31,6 @@ class Category(MPTTModel):
         'self', null=True, blank=True, related_name='children',
         verbose_name=pgettext_lazy('Category field', 'parent'),
         on_delete=models.CASCADE)
-    is_hidden = models.BooleanField(
-        pgettext_lazy('Category field', 'is hidden'), default=False)
 
     objects = models.Manager()
     tree = TreeManager()
@@ -62,9 +58,6 @@ class Category(MPTTModel):
             ancestors = self.get_ancestors()
         nodes = [node for node in ancestors] + [self]
         return '/'.join([node.slug for node in nodes])
-
-    def set_is_hidden_descendants(self, is_hidden):
-        self.get_descendants().update(is_hidden=is_hidden)
 
 
 class ProductClass(models.Model):
@@ -98,10 +91,7 @@ class ProductClass(models.Model):
 
 class ProductManager(models.Manager):
     def get_available_products(self):
-        today = datetime.date.today()
-        return self.get_queryset().filter(
-            Q(available_on__lte=today) | Q(available_on__isnull=True)).filter(
-                is_published=True)
+        return self.get_queryset().filter(is_published=True)
 
 
 class Product(models.Model, ItemRange):
@@ -114,21 +104,14 @@ class Product(models.Model, ItemRange):
     description = models.TextField(
         verbose_name=pgettext_lazy('Product field', 'description'))
     categories = models.ManyToManyField(
-        Category, verbose_name=pgettext_lazy('Product field', 'categories'),
+        Category, verbose_name=pgettext_lazy('Product field', 'companies'),
         related_name='products')
-    price = PriceField(
-        pgettext_lazy('Product field', 'price'),
-        currency=settings.DEFAULT_CURRENCY, max_digits=12, decimal_places=2)
-    available_on = models.DateField(
-        pgettext_lazy('Product field', 'available on'), blank=True, null=True)
     is_published = models.BooleanField(
         pgettext_lazy('Product field', 'is published'), default=True)
     attributes = HStoreField(
         pgettext_lazy('Product field', 'attributes'), default={})
     updated_at = models.DateTimeField(
         pgettext_lazy('Product field', 'updated at'), auto_now=True, null=True)
-    is_featured = models.BooleanField(
-        pgettext_lazy('Product field', 'is featured'), default=False)
 
     objects = ProductManager()
 
@@ -172,13 +155,11 @@ class Product(models.Model, ItemRange):
 
     def get_first_category(self):
         for category in self.categories.all():
-            if not category.is_hidden:
-                return category
+            return category
         return None
 
     def is_available(self):
-        today = datetime.date.today()
-        return self.available_on is None or self.available_on <= today
+        return True
 
     def get_first_image(self):
         first_image = self.images.first()
@@ -193,22 +174,6 @@ class Product(models.Model, ItemRange):
     def set_attribute(self, pk, value_pk):
         self.attributes[smart_text(pk)] = smart_text(value_pk)
 
-    def get_price_range(self, discounts=None, **kwargs):
-        if not self.variants.exists():
-            price = calculate_discounted_price(
-                self, self.price, discounts, **kwargs)
-            return PriceRange(price, price)
-        else:
-            return super(Product, self).get_price_range(
-                discounts=discounts, **kwargs)
-
-    def get_gross_price_range(self, **kwargs):
-        grosses = [self.get_price_per_item(item, **kwargs) for item in self]
-        if not grosses:
-            return None
-        grosses = sorted(grosses, key=lambda x: x.tax)
-        return PriceRange(min(grosses), max(grosses))
-
 
 class ProductVariant(models.Model, Item):
     sku = models.CharField(
@@ -217,10 +182,6 @@ class ProductVariant(models.Model, Item):
     name = models.CharField(
         pgettext_lazy('Product variant field', 'variant name'), max_length=100,
         blank=True)
-    price_override = PriceField(
-        pgettext_lazy('Product variant field', 'price override'),
-        currency=settings.DEFAULT_CURRENCY, max_digits=12, decimal_places=2,
-        blank=True, null=True)
     product = models.ForeignKey(
         Product, related_name='variants', on_delete=models.CASCADE)
     attributes = HStoreField(
@@ -236,18 +197,10 @@ class ProductVariant(models.Model, Item):
         return self.name or self.display_variant()
 
     def check_quantity(self, quantity):
-        total_available_quantity = self.get_stock_quantity()
-        if quantity > total_available_quantity:
-            raise InsufficientStock(self)
+        pass
 
     def get_stock_quantity(self):
-        return sum([stock.quantity_available for stock in self.stock.all()])
-
-    def get_price_per_item(self, discounts=None, **kwargs):
-        price = self.price_override or self.product.price
-        price = calculate_discounted_price(self.product, price, discounts,
-                                           **kwargs)
-        return price
+        return 1000
 
     def get_absolute_url(self):
         slug = self.product.get_slug()
@@ -259,15 +212,13 @@ class ProductVariant(models.Model, Item):
         return {
             'product_name': str(self),
             'product_id': self.product.pk,
-            'variant_id': self.pk,
-            'unit_price': str(self.get_price_per_item().gross)}
+            'variant_id': self.pk,}
 
     def is_shipping_required(self):
         return self.product.product_class.is_shipping_required
 
     def is_in_stock(self):
-        return any(
-            [stock.quantity_available > 0 for stock in self.stock.all()])
+        return True
 
     def get_attribute(self, pk):
         return self.attributes.get(smart_text(pk))
@@ -278,6 +229,7 @@ class ProductVariant(models.Model, Item):
     def display_variant(self, attributes=None):
         if attributes is None:
             attributes = self.product.product_class.variant_attributes.all()
+        from .utils import get_attributes_display_map
         values = get_attributes_display_map(self, attributes)
         if values:
             return ', '.join(
@@ -293,22 +245,6 @@ class ProductVariant(models.Model, Item):
     def get_first_image(self):
         return self.product.get_first_image()
 
-    def select_stockrecord(self, quantity=1):
-        # By default selects stock with lowest cost price. If stock cost price
-        # is None we assume price equal to zero to allow sorting.
-        stock = [
-            stock_item for stock_item in self.stock.all()
-            if stock_item.quantity_available >= quantity]
-        zero_price = Price(0, currency=settings.DEFAULT_CURRENCY)
-        stock = sorted(
-            stock, key=(lambda s: s.cost_price or zero_price), reverse=False)
-        if stock:
-            return stock[0]
-
-    def get_cost_price(self):
-        stock = self.select_stockrecord()
-        if stock:
-            return stock.cost_price
 
 
 class StockLocation(models.Model):

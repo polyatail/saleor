@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import npgettext_lazy, pgettext_lazy
 from django.views.decorators.http import require_POST
-from django_prices.templatetags.prices_i18n import gross
 
 from ...core.utils import get_paginator_items
 from ...product.models import (
@@ -400,9 +399,7 @@ def variant_edit(request, product_pk, variant_pk=None):
 @permission_required('product.view_product')
 def variant_details(request, product_pk, variant_pk):
     product = get_object_or_404(Product, pk=product_pk)
-    qs = product.variants.prefetch_related(
-        'product__product_class__variant_attributes__values')
-    variant = get_object_or_404(qs, pk=variant_pk)
+    variant = get_object_or_404(ProductVariant, pk=variant_pk)
 
     # If the product class of this product assumes no variants, redirect to
     # product details page that has special UI for products without variants.
@@ -685,9 +682,8 @@ def ajax_available_variants_list(request):
     Response format is as required by select2 field.
     """
     def get_variant_label(variant):
-        return '%s, %s, %s' % (
-            variant.sku, variant.display_product(),
-            gross(variant.product.price))
+        return '%s, %s' % (
+            variant.sku, variant.display_product())
 
     available_products = Product.objects.get_available_products()
     queryset = ProductVariant.objects.filter(

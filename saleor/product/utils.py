@@ -155,17 +155,8 @@ def get_variant_picker_data(product, discounts=None, local_currency=None):
     filter_available_variants = defaultdict(list)
 
     for variant in variants:
-        price = variant.get_price_per_item(discounts)
-        price_undiscounted = variant.get_price_per_item()
-        if local_currency:
-            price_local_currency = to_local_currency(price, local_currency)
-        else:
-            price_local_currency = None
-
         schema_data = {'@type': 'Offer',
-                       'itemCondition': 'http://schema.org/NewCondition',
-                       'priceCurrency': None,
-                       'price': None}
+                       'itemCondition': 'http://schema.org/NewCondition',}
 
         if variant.is_in_stock():
             schema_data['availability'] = 'http://schema.org/InStock'
@@ -174,10 +165,7 @@ def get_variant_picker_data(product, discounts=None, local_currency=None):
 
         variant_data = {
             'id': variant.id,
-            'price': price_as_dict(price),
-            'priceUndiscounted': price_as_dict(price_undiscounted),
             'attributes': variant.attributes,
-            'priceLocalCurrency': price_as_dict(price_local_currency),
             'schemaData': schema_data}
         data['variants'].append(variant_data)
 
@@ -198,13 +186,6 @@ def get_variant_picker_data(product, discounts=None, local_currency=None):
                     for value in attribute.values.filter(
                         pk__in=available_variants)]})
 
-    data['availability'] = {
-        'discount': price_as_dict(availability.discount),
-        'priceRange': price_range_as_dict(availability.price_range),
-        'priceRangeUndiscounted': price_range_as_dict(
-            availability.price_range_undiscounted),
-        'priceRangeLocalCurrency': price_range_as_dict(
-            availability.price_range_local_currency)}
     return data
 
 
