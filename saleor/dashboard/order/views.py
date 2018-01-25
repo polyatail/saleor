@@ -7,10 +7,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.context_processors import csrf
 from django.template.response import TemplateResponse
 from django.utils.translation import pgettext_lazy
-from django_prices.templatetags.prices_i18n import gross
-from payments import PaymentStatus
-from prices import Price
-from satchless.item import InsufficientStock
 
 from .filters import OrderFilter
 from .forms import (
@@ -18,13 +14,10 @@ from .forms import (
     CancelOrderForm, ChangeQuantityForm,
     OrderNoteForm)
 
-from .utils import (create_packing_slip_pdf, create_invoice_pdf,
-                    get_statics_absolute_url)
 from ..views import staff_member_required
 from ...core.utils import get_paginator_items
 from ...order import OrderStatus
 from ...order.models import Order, OrderLine, OrderNote
-from ...userprofile.i18n import AddressForm
 
 
 @staff_member_required

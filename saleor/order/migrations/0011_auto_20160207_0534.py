@@ -10,7 +10,7 @@ import django_prices.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('discount', '0003_auto_20160207_0534'),
+#        ('discount', '0003_auto_20160207_0534'),
         ('order', '0010_auto_20160119_0541'),
     ]
 

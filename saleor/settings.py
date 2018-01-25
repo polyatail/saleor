@@ -157,18 +157,14 @@ INSTALLED_APPS = [
 
     # Local apps
     'saleor.userprofile',
-    'saleor.discount',
     'saleor.product',
     'saleor.cart',
-    'saleor.checkout',
     'saleor.core',
     'saleor.graphql',
     'saleor.order',
     'saleor.dashboard',
-    'saleor.shipping',
     'saleor.search',
     'saleor.site',
-    'saleor.data_feeds',
 
     # External apps
     'versatileimagefield',

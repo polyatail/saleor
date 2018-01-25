@@ -16,9 +16,7 @@ from satchless.item import ItemLine, ItemSet
 
 from . import OrderStatus, emails
 from ..core.utils import build_absolute_uri
-from ..discount.models import Voucher
 from ..product.models import Product
-from ..userprofile.models import Address
 
 
 class Order(models.Model, ItemSet):
@@ -35,18 +33,11 @@ class Order(models.Model, ItemSet):
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='orders',
         verbose_name=pgettext_lazy('Order field', 'user'),
         on_delete=models.SET_NULL)
-    language_code = models.CharField(
-        max_length=35, default=settings.LANGUAGE_CODE)
     tracking_client_id = models.CharField(
         pgettext_lazy('Order field', 'tracking client id'),
         max_length=36, blank=True, editable=False)
-    user_email = models.EmailField(
-        pgettext_lazy('Order field', 'user email'),
-        blank=True, default='', editable=False)
     token = models.CharField(
         pgettext_lazy('Order field', 'token'), max_length=36, unique=True)
-    employeeid = models.CharField(
-        pgettext_lazy('Order field', 'employeeid'), max_length=256, default='')
 
     class Meta:
         ordering = ('-last_status_change',)
@@ -78,12 +69,6 @@ class Order(models.Model, ItemSet):
 
     def get_absolute_url(self):
         return reverse('order:details', kwargs={'token': self.token})
-
-    def send_confirmation_email(self):
-        email = self.get_user_current_email()
-        payment_url = build_absolute_uri(
-            reverse('order:details', kwargs={'token': self.token}))
-        emails.send_order_confirmation.delay(email, payment_url)
 
     def create_history_entry(self, comment='', status=None, user=None):
         if not status:

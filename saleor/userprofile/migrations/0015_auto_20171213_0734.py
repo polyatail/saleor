@@ -12,10 +12,10 @@ class Migration(migrations.Migration):
         ('userprofile', '0014_auto_20171129_1004'),
     ]
 
-    operations = [
-        migrations.AlterField(
-            model_name='address',
-            name='phone',
-            field=saleor.userprofile.models.PossiblePhoneNumberField(blank=True, default='', max_length=128, verbose_name='phone number'),
-        ),
-    ]
+#    operations = [
+#        migrations.AlterField(
+#            model_name='address',
+#            name='phone',
+#            field=saleor.userprofile.models.PossiblePhoneNumberField(blank=True, default='', max_length=128, verbose_name='phone number'),
+#        ),
+#    ]

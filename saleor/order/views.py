@@ -12,7 +12,7 @@ from payments import PaymentStatus, RedirectNeeded
 
 from .forms import PasswordForm
 from .models import Order
-from .utils import attach_order_to_user, check_order_status
+from .utils import check_order_status
 from ..core.utils import get_client_ip
 from ..registration.forms import LoginForm
 from ..userprofile.models import User

@@ -6,8 +6,6 @@ from django.utils.translation import npgettext_lazy, pgettext_lazy
 from django_countries.fields import LazyTypedChoiceField, countries
 from satchless.item import InsufficientStock
 
-from ..shipping.utils import get_shipment_options
-
 
 class QuantityField(forms.IntegerField):
     """A specialized integer field with initial quantity and min/max values."""
@@ -144,16 +142,3 @@ class ReplaceCartLineForm(AddToCartForm):
         product_variant = self.get_variant(self.cleaned_data)
         return self.cart.add(product_variant, self.cleaned_data['quantity'],
                              replace=True)
-
-
-class CountryForm(forms.Form):
-    """Country selection form."""
-
-    country = LazyTypedChoiceField(
-        label=pgettext_lazy('Country form field label', 'Country'),
-        choices=countries)
-
-    def get_shipment_options(self):
-        """Return a list of shipping methods for the selected country."""
-        code = self.cleaned_data['country']
-        return get_shipment_options(code)

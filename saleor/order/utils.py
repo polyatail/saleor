@@ -4,11 +4,7 @@ from django.conf import settings
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import pgettext_lazy
-from prices import Price
-from satchless.item import InsufficientStock
 
-from ..product.models import Stock
-from ..userprofile.utils import store_user_address
 from .models import Order, OrderLine
 from . import OrderStatus
 
@@ -39,88 +35,6 @@ def recalculate_order(order):
     Total price is a sum of items and shippings in order shipment groups. """
     order.total = 0
     order.save()
-
-
-def attach_order_to_user(order, user):
-    """Associates existing order with user account."""
-    order.user = user
-    store_user_address(user, order.billing_address, billing=True)
-    if order.shipping_address:
-        store_user_address(user, order.shipping_address, shipping=True)
-    order.save(update_fields=['user'])
-
-
-def fill_group_with_partition(group, partition, discounts=None):
-    """Fills shipment group with order lines created from partition items.
-    """
-    for item in partition:
-        add_variant_to_delivery_group(
-            group, item.variant, item.get_quantity(), discounts,
-            add_to_existing=False)
-
-
-def add_variant_to_delivery_group(
-        group, variant, total_quantity, discounts=None, add_to_existing=True):
-    """Adds total_quantity of variant to group.
-    Raises InsufficientStock exception if quantity could not be fulfilled.
-
-    By default, first adds variant to existing lines with same variant.
-    It can be disabled with setting add_to_existing to False.
-
-    Order lines are created by increasing quantity of lines,
-    as long as total_quantity of variant will be added.
-    """
-    group.lines.create(
-        product=variant.product,
-        product_name=variant.display_product(),
-        product_sku=variant.sku,
-        quantity=total_quantity)
-
-
-def add_variant_to_existing_lines(group, variant, total_quantity):
-    """Adds variant to existing lines with same variant.
-
-    Variant is added by increasing quantity of lines with same variant,
-    as long as total_quantity of variant will be added
-    or there is no more lines with same variant.
-
-    Returns quantity that could not be fulfilled with existing lines.
-    """
-    # order descending by lines' stock available quantity
-    lines = group.lines.filter(
-        product=variant.product, product_sku=variant.sku,
-        stock__isnull=False).order_by(
-            F('stock__quantity_allocated') - F('stock__quantity'))
-
-    quantity_left = total_quantity
-    for line in lines:
-        quantity = (
-            line.stock.quantity_available
-            if quantity_left > line.stock.quantity_available
-            else quantity_left)
-        line.quantity += quantity
-        line.save()
-        Stock.objects.allocate_stock(line.stock, quantity)
-        quantity_left -= quantity
-        if quantity_left == 0:
-            break
-    return quantity_left
-
-
-def cancel_delivery_group(group, cancel_order=True):
-    """Cancells shipment group and (optionally) it's order if necessary."""
-    for line in group:
-        if line.stock:
-            Stock.objects.deallocate_stock(line.stock, line.quantity)
-    group.status = OrderStatus.CANCELLED
-    group.save()
-    if cancel_order:
-        other_groups = group.order.groups.all()
-        statuses = set(other_groups.values_list('status', flat=True))
-        if statuses == {OrderStatus.CANCELLED}:
-            # Cancel whole order
-            group.order.status = OrderStatus.CANCELLED
-            group.order.save(update_fields=['status'])
 
 
 def merge_duplicates_into_order_line(line):
