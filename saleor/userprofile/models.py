@@ -134,7 +134,7 @@ class User(PermissionsMixin, AbstractBaseUser):
     is_active = models.BooleanField(
         pgettext_lazy('User field', 'active'),
         default=True)
-    company = models.ForeignKey(Category, on_delete=models.CASCADE)
+    company = models.ForeignKey(Category, on_delete=models.CASCADE, default=False)
     date_joined = models.DateTimeField(
         pgettext_lazy('User field', 'date joined'),
         default=timezone.now, editable=False)
