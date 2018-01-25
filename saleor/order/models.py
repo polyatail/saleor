@@ -46,7 +46,7 @@ class Order(models.Model, ItemSet):
     token = models.CharField(
         pgettext_lazy('Order field', 'token'), max_length=36, unique=True)
     employeeid = models.CharField(
-        pgettext_lazy('Order field', 'employeeid'), max_length=256)
+        pgettext_lazy('Order field', 'employeeid'), max_length=256, default='')
 
     class Meta:
         ordering = ('-last_status_change',)
@@ -97,7 +97,7 @@ class Order(models.Model, ItemSet):
 class OrderLine(models.Model, ItemLine):
     order = models.ForeignKey(
         Order, editable=False,
-        on_delete=models.CASCADE)
+        on_delete=models.CASCADE, null=True)
     product = models.ForeignKey(
         Product, blank=True, null=True, related_name='+',
         on_delete=models.SET_NULL,
