@@ -11,7 +11,7 @@ from ..cart.utils import set_cart_cookie
 from ..core.utils import get_paginator_items, serialize_decimal
 from ..core.utils.filters import get_now_sorted_by, get_sort_by_choices
 from .filters import ProductFilter, SORT_BY_FIELDS
-from .models import Category
+from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant
 from .utils import (
     get_availability, get_product_attributes_data, get_product_images,
     get_variant_picker_data, handle_cart_form, product_json_ld,
@@ -54,6 +54,26 @@ def product_details(request, slug, product_id, form=None):
     product_attributes = get_product_attributes_data(product)
     show_variant_picker = all([v.attributes for v in product.variants.all()])
     json_ld_data = product_json_ld(product, availability, product_attributes)
+
+    # figure out the appropriate variant image
+    variant_finder = {}
+
+    for k, v in request.GET.items():
+      k_id = get_object_or_404(ProductAttribute, slug=k).id
+      v_id = get_object_or_404(AttributeChoiceValue, attribute_id=k_id, slug=v).id
+
+      variant_finder["attributes__%d" % k_id] = v_id
+
+    picked_variant = ProductVariant.objects.filter(**variant_finder).first()
+
+    # try to match this variant's images to the product_images
+    for pi_idx in range(len(product_images)):
+      if product_images[pi_idx] == picked_variant.images.first():
+        product_images[pi_idx].active = True
+        break
+    else:
+      product_images[0].active = True
+
     return TemplateResponse(
         request, 'product/details.html',
         {'is_visible': is_visible,

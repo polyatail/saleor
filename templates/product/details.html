@@ -38,7 +38,7 @@
           <div id="carousel-example-generic" class="carousel slide">
             <div class="carousel-inner" role="listbox">
               {% for image in images %}
-                <div class="carousel-item{% if forloop.first %} active{% endif %}">
+                <div class="carousel-item{% if image.active %} active{% endif %}">
                   <img class="d-block img-fluid"
                        src="{% get_thumbnail image.image method="crop" size="540x540" %}"
                        srcset="{% get_thumbnail image.image method="crop" size="540x540" %} 1x, {% get_thumbnail image.image method="crop" size="1080x1080" %} 2x" alt="">
