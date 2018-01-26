@@ -46,8 +46,16 @@ def is_image_preview_widget(field):
 
 @register.inclusion_tag('dashboard/product/product_variant/_image_select.html')
 def render_image_choice(field):
-    choices = zip(field, field.field.queryset)
-    return {'field': field, 'choices_with_images': choices}
+    new_field = []
+
+    for f in field:
+      f.name = 'images'
+      f.value = f.data['value']
+      f.selected = f.data['selected']
+      new_field.append(f)
+
+    choices = zip(new_field, field.field.queryset)
+    return {'field': new_field, 'choices_with_images': choices}
 
 
 @register.inclusion_tag('dashboard/includes/_pagination.html',
