@@ -5,7 +5,6 @@ from django.template import Library
 from django_filters.fields import RangeField
 from versatileimagefield.widgets import VersatileImagePPOIClickWidget
 
-from ...product.utils import get_margin_for_variant, get_variant_costs_data
 from ..product.widgets import ImagePreviewWidget
 from .chips import (
     handle_default, handle_multiple_choice, handle_multiple_model_choice,
@@ -60,17 +59,6 @@ def paginate(context, page_obj, num_of_pages=5):
     context['next_section'] = (2 * num_of_pages) + 1
     context['previous_section'] = (-2 * num_of_pages) - 1
     return context
-
-
-@register.simple_tag
-def margin_for_variant(stock):
-    return get_margin_for_variant(stock)
-
-
-@register.simple_tag
-def margins_for_variant(variant):
-    margins = get_variant_costs_data(variant)['margins']
-    return margins
 
 
 @register.inclusion_tag('dashboard/includes/_filters.html', takes_context=True)

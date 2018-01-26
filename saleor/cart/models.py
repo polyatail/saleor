@@ -30,14 +30,6 @@ def find_open_cart_for_user(user):
     return carts.first()
 
 
-class ProductGroup(ItemList):
-    """A group of products."""
-
-    def is_shipping_required(self):
-        """Return `True` if any product in group requires shipping."""
-        return any(p.is_shipping_required() for p in self)
-
-
 class CartQueryset(models.QuerySet):
     """A specialized queryset for dealing with carts."""
 
@@ -75,8 +67,7 @@ class CartQueryset(models.QuerySet):
             'lines__variant__product__categories',
             'lines__variant__product__images',
             'lines__variant__product__product_class__product_attributes__values',  # noqa
-            'lines__variant__product__product_class__variant_attributes__values',  # noqa
-            'lines__variant__stock')
+            'lines__variant__product__product_class__variant_attributes__values',)  # noqa
 
 
 class Cart(models.Model):
@@ -93,8 +84,6 @@ class Cart(models.Model):
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='carts',
         verbose_name=pgettext_lazy('Cart field', 'user'),
         on_delete=models.CASCADE)
-    email = models.EmailField(
-        pgettext_lazy('Cart field', 'email'), blank=True, null=True)
     token = models.UUIDField(
         pgettext_lazy('Cart field', 'token'),
         primary_key=True, default=uuid4, editable=False)
@@ -110,7 +99,6 @@ class Cart(models.Model):
         ordering = ('-last_status_change',)
 
     def __init__(self, *args, **kwargs):
-        self.discounts = kwargs.pop('discounts', None)
         super(Cart, self).__init__(*args, **kwargs)
 
     def update_quantity(self):

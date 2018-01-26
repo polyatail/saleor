@@ -33,20 +33,6 @@ def product_details(request, slug, product_id, form=None):
     form:
         The add-to-cart form.
 
-    price_range:
-        The PriceRange for the product including all discounts.
-
-    undiscounted_price_range:
-        The PriceRange excluding all discounts.
-
-    discount:
-        Either a Price instance equal to the discount value or None if no
-        discount was available.
-
-    local_price_range:
-        The same PriceRange from price_range represented in user's local
-        currency. The value will be None if exchange rate is not available or
-        the local currency is the same as site's default currency.
     """
     products = products_with_details(user=request.user)
     product = get_object_or_404(products, id=product_id)
@@ -62,11 +48,9 @@ def product_details(request, slug, product_id, form=None):
     is_visible = True
     if form is None:
         form = handle_cart_form(request, product, create_cart=False)[0]
-    availability = get_availability(product, discounts=request.discounts,
-                                    local_currency=request.currency)
+    availability = get_availability(product)
     product_images = get_product_images(product)
-    variant_picker_data = get_variant_picker_data(
-        product, request.discounts, request.currency)
+    variant_picker_data = get_variant_picker_data(product)
     product_attributes = get_product_attributes_data(product)
     show_variant_picker = all([v.attributes for v in product.variants.all()])
     json_ld_data = product_json_ld(product, availability, product_attributes)
@@ -127,8 +111,7 @@ def category_index(request, path, category_id):
         request.GET, queryset=products, category=category)
     products_paginated = get_paginator_items(
         product_filter.qs, settings.PAGINATE_BY, request.GET.get('page'))
-    products_and_availability = list(products_with_availability(
-        products_paginated, request.discounts, request.currency))
+    products_and_availability = list(products_with_availability(products_paginated))
     now_sorted_by = get_now_sorted_by(product_filter)
     arg_sort_by = request.GET.get('sort_by')
     is_descending = arg_sort_by.startswith('-') if arg_sort_by else False

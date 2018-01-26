@@ -8,7 +8,7 @@ from django.utils.translation import pgettext_lazy
 
 from ...product.models import (
     AttributeChoiceValue, Product, ProductAttribute, ProductClass,
-    ProductImage, ProductVariant, Stock, StockLocation, VariantImage)
+    ProductImage, ProductVariant, VariantImage)
 from .widgets import ImagePreviewWidget
 from . import ProductBulkAction
 
@@ -22,32 +22,6 @@ class ProductClassSelectorForm(forms.Form):
         self.fields['product_cls'] = forms.ChoiceField(
             label=pgettext_lazy('Product class form label', 'Product type'),
             choices=choices, widget=forms.RadioSelect)
-
-
-class StockForm(forms.ModelForm):
-    class Meta:
-        model = Stock
-        exclude = ['quantity_allocated', 'variant']
-
-    def __init__(self, *args, **kwargs):
-        self.variant = kwargs.pop('variant')
-        super(StockForm, self).__init__(*args, **kwargs)
-
-    def clean_location(self):
-        location = self.cleaned_data['location']
-        if (
-            not self.instance.pk and
-                self.variant.stock.filter(location=location).exists()):
-            self.add_error(
-                'location',
-                pgettext_lazy(
-                    'stock form error',
-                    'Stock item for this location and variant already exists'))
-        return location
-
-    def save(self, commit=True):
-        self.instance.variant = self.variant
-        return super(StockForm, self).save(commit)
 
 
 class ProductClassForm(forms.ModelForm):
@@ -213,14 +187,6 @@ class VariantBulkDeleteForm(forms.Form):
         items.delete()
 
 
-class StockBulkDeleteForm(forms.Form):
-    items = forms.ModelMultipleChoiceField(queryset=Stock.objects)
-
-    def delete(self):
-        items = Stock.objects.filter(pk__in=self.cleaned_data['items'])
-        items.delete()
-
-
 class ProductImageForm(forms.ModelForm):
     use_required_attribute = False
     variants = forms.ModelMultipleChoiceField(
@@ -260,12 +226,6 @@ class VariantImagesSelectForm(forms.Form):
 class ProductAttributeForm(forms.ModelForm):
     class Meta:
         model = ProductAttribute
-        exclude = []
-
-
-class StockLocationForm(forms.ModelForm):
-    class Meta:
-        model = StockLocation
         exclude = []
 
 

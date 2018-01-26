@@ -17,8 +17,6 @@ from .filters import UserFilter
 def customer_list(request):
     customers = (
         User.objects
-        .prefetch_related('orders', 'addresses')
-        .select_related('default_billing_address', 'default_shipping_address')
         .order_by('email'))
     customer_filter = UserFilter(request.GET, queryset=customers)
     customers = get_paginator_items(
@@ -31,9 +29,7 @@ def customer_list(request):
 @staff_member_required
 @permission_required('userprofile.view_user')
 def customer_details(request, pk):
-    queryset = User.objects.prefetch_related(
-        'orders', 'addresses').select_related(
-        'default_billing_address', 'default_shipping_address')
+    queryset = User.objects
     customer = get_object_or_404(queryset, pk=pk)
     customer_orders = customer.orders.all()
     ctx = {'customer': customer, 'customer_orders': customer_orders}

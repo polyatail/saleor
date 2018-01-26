@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -11,18 +10,15 @@ from django.views.decorators.http import require_POST
 from ...core.utils import get_paginator_items
 from ...product.models import (
     AttributeChoiceValue, Product, ProductAttribute, ProductClass,
-    ProductImage, ProductVariant, Stock, StockLocation)
-from ...product.utils import (
-    get_availability, get_product_costs_data, get_variant_costs_data)
+    ProductImage, ProductVariant)
+from ...product.utils import get_availability
 from ..views import staff_member_required
 from .filters import (
-    ProductFilter, ProductAttributeFilter, ProductClassFilter,
-    StockLocationFilter)
+    ProductFilter, ProductAttributeFilter, ProductClassFilter)
 from . import forms
 
 
 @staff_member_required
-@permission_required('product.view_properties')
 def product_class_list(request):
     classes = ProductClass.objects.all().prefetch_related(
         'product_attributes', 'variant_attributes').order_by('name')
@@ -45,7 +41,6 @@ def product_class_list(request):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def product_class_create(request):
     product_class = ProductClass()
     form = forms.ProductClassForm(request.POST or None,
@@ -64,7 +59,6 @@ def product_class_create(request):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def product_class_edit(request, pk):
     product_class = get_object_or_404(
         ProductClass, pk=pk)
@@ -84,7 +78,6 @@ def product_class_edit(request, pk):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def product_class_delete(request, pk):
     product_class = get_object_or_404(ProductClass, pk=pk)
     if request.method == 'POST':
@@ -105,7 +98,6 @@ def product_class_delete(request, pk):
 
 
 @staff_member_required
-@permission_required('product.view_product')
 def product_list(request):
     products = Product.objects.prefetch_related('images')
     products = products.order_by('name')
@@ -129,7 +121,6 @@ def product_list(request):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def product_create(request, class_pk):
     product_class = get_object_or_404(ProductClass, pk=class_pk)
     create_variant = not product_class.has_variants
@@ -161,28 +152,18 @@ def product_create(request, class_pk):
 
 
 @staff_member_required
-@permission_required('product.view_product')
 def product_detail(request, pk):
     products = Product.objects.prefetch_related(
-        'variants__stock', 'images',
-        'product_class__variant_attributes__values').all()
+        'images', 'product_class__variant_attributes__values').all()
     product = get_object_or_404(products, pk=pk)
     variants = product.variants.all()
     images = product.images.all()
-#    availability = get_availability(product)
-#    sale_price = availability.price_range
-#    purchase_cost, gross_margin = get_product_costs_data(product)
-#    gross_price_range = product.get_gross_price_range()
 
     # no_variants is True for product classes that doesn't require variant.
     # In this case we're using the first variant under the hood to allow stock
     # management.
     no_variants = not product.product_class.has_variants
     only_variant = variants.first() if no_variants else None
-    if only_variant:
-        stock = only_variant.stock.all()
-    else:
-        stock = Stock.objects.none()
     ctx = {
         'product': product, 'variants': variants, 'images': images,
         'no_variants': no_variants, 'only_variant': only_variant}
@@ -191,7 +172,6 @@ def product_detail(request, pk):
 
 @require_POST
 @staff_member_required
-@permission_required('product.edit_product')
 def product_toggle_is_published(request, pk):
     product = get_object_or_404(Product, pk=pk)
     product.is_published = not product.is_published
@@ -201,7 +181,6 @@ def product_toggle_is_published(request, pk):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def product_edit(request, pk):
     product = get_object_or_404(
         Product.objects.prefetch_related('variants'), pk=pk)
@@ -232,7 +211,6 @@ def product_edit(request, pk):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
@@ -248,66 +226,6 @@ def product_delete(request, pk):
 
 
 @staff_member_required
-@permission_required('product.view_stock_location')
-def stock_details(request, product_pk, variant_pk, stock_pk):
-    product = get_object_or_404(Product, pk=product_pk)
-    variant = get_object_or_404(product.variants, pk=variant_pk)
-    stock = get_object_or_404(variant.stock, pk=stock_pk)
-    ctx = {'stock': stock, 'product': product, 'variant': variant}
-    return TemplateResponse(
-        request,
-        'dashboard/product/stock/detail.html',
-        ctx)
-
-
-@staff_member_required
-@permission_required('product.edit_stock_location')
-def stock_edit(request, product_pk, variant_pk, stock_pk=None):
-    product = get_object_or_404(Product, pk=product_pk)
-    variant = get_object_or_404(product.variants, pk=variant_pk)
-    if stock_pk:
-        stock = get_object_or_404(variant.stock, pk=stock_pk)
-    else:
-        stock = Stock()
-    form = forms.StockForm(
-        request.POST or None, instance=stock, variant=variant)
-    if form.is_valid():
-        form.save()
-        messages.success(
-            request, pgettext_lazy('Dashboard message', 'Saved stock'))
-        return redirect(
-            'dashboard:variant-details', product_pk=product.pk,
-            variant_pk=variant.pk)
-    ctx = {'form': form, 'product': product,
-           'variant': variant, 'stock': stock}
-    return TemplateResponse(
-        request,
-        'dashboard/product/stock/form.html',
-        ctx)
-
-
-@staff_member_required
-@permission_required('product.edit_stock_location')
-def stock_delete(request, product_pk, variant_pk, stock_pk):
-    product = get_object_or_404(Product, pk=product_pk)
-    variant = get_object_or_404(product.variants, pk=variant_pk)
-    stock = get_object_or_404(Stock, pk=stock_pk)
-    if request.method == 'POST':
-        stock.delete()
-        messages.success(
-            request, pgettext_lazy('Dashboard message', 'Removed stock'))
-        return redirect(
-            'dashboard:variant-details', product_pk=product.pk,
-            variant_pk=variant.pk)
-    ctx = {'product': product, 'stock': stock, 'variant': variant}
-    return TemplateResponse(
-        request,
-        'dashboard/product/stock/modal/confirm_delete.html',
-        ctx)
-
-
-@staff_member_required
-@permission_required('product.view_product')
 def product_images(request, product_pk):
     product = get_object_or_404(
         Product.objects.prefetch_related('images'), pk=product_pk)
@@ -319,7 +237,6 @@ def product_images(request, product_pk):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def product_image_edit(request, product_pk, img_pk=None):
     product = get_object_or_404(Product, pk=product_pk)
     if img_pk:
@@ -348,7 +265,6 @@ def product_image_edit(request, product_pk, img_pk=None):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def product_image_delete(request, product_pk, img_pk):
     product = get_object_or_404(Product, pk=product_pk)
     image = get_object_or_404(product.images, pk=img_pk)
@@ -367,7 +283,6 @@ def product_image_delete(request, product_pk, img_pk):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def variant_edit(request, product_pk, variant_pk=None):
     product = get_object_or_404(
         Product.objects.all(), pk=product_pk)
@@ -396,7 +311,6 @@ def variant_edit(request, product_pk, variant_pk=None):
 
 
 @staff_member_required
-@permission_required('product.view_product')
 def variant_details(request, product_pk, variant_pk):
     product = get_object_or_404(Product, pk=product_pk)
     variant = get_object_or_404(ProductVariant, pk=variant_pk)
@@ -407,7 +321,6 @@ def variant_details(request, product_pk, variant_pk):
     if not product.product_class.has_variants:
         return redirect('dashboard:product-detail', pk=product.pk)
 
-    stock = variant.stock.all()
     images = variant.images.all()
     ctx = {'images': images, 'product': product,
            'variant': variant}
@@ -418,7 +331,6 @@ def variant_details(request, product_pk, variant_pk):
 
 
 @staff_member_required
-@permission_required('product.view_product')
 def variant_images(request, product_pk, variant_pk):
     product = get_object_or_404(Product, pk=product_pk)
     qs = product.variants.prefetch_related('images')
@@ -437,7 +349,6 @@ def variant_images(request, product_pk, variant_pk):
 
 
 @staff_member_required
-@permission_required('product.edit_product')
 def variant_delete(request, product_pk, variant_pk):
     product = get_object_or_404(Product, pk=product_pk)
     variant = get_object_or_404(product.variants, pk=variant_pk)
@@ -459,7 +370,6 @@ def variant_delete(request, product_pk, variant_pk):
 
 
 @staff_member_required
-@permission_required('product.view_properties')
 def attribute_list(request):
     attributes = (ProductAttribute.objects.prefetch_related('values')
                   .order_by('name'))
@@ -477,7 +387,6 @@ def attribute_list(request):
 
 
 @staff_member_required
-@permission_required('product.view_properties')
 def attribute_detail(request, pk):
     attributes = ProductAttribute.objects.prefetch_related('values').all()
     attribute = get_object_or_404(attributes, pk=pk)
@@ -488,7 +397,6 @@ def attribute_detail(request, pk):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def attribute_edit(request, pk=None):
     if pk:
         attribute = get_object_or_404(ProductAttribute, pk=pk)
@@ -510,7 +418,6 @@ def attribute_edit(request, pk=None):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def attribute_delete(request, pk):
     attribute = get_object_or_404(ProductAttribute, pk=pk)
     if request.method == 'POST':
@@ -529,7 +436,6 @@ def attribute_delete(request, pk):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def attribute_choice_value_edit(request, attribute_pk, value_pk=None):
     attribute = get_object_or_404(ProductAttribute, pk=attribute_pk)
     if value_pk:
@@ -554,7 +460,6 @@ def attribute_choice_value_edit(request, attribute_pk, value_pk=None):
 
 
 @staff_member_required
-@permission_required('product.edit_properties')
 def attribute_choice_value_delete(request, attribute_pk, value_pk):
     value = get_object_or_404(AttributeChoiceValue, pk=value_pk)
     if request.method == 'POST':
@@ -569,63 +474,6 @@ def attribute_choice_value_delete(request, attribute_pk, value_pk):
         request,
         'dashboard/product/product_attribute/values/modal/confirm_delete.html',
         {'value': value, 'attribute_pk': attribute_pk})
-
-
-@staff_member_required
-@permission_required('product.view_stock_location')
-def stock_location_list(request):
-    stock_locations = StockLocation.objects.all().order_by('name')
-    stock_location_filter = StockLocationFilter(
-        request.GET, queryset=stock_locations)
-    stock_locations = get_paginator_items(
-        stock_location_filter.qs, settings.DASHBOARD_PAGINATE_BY,
-        request.GET.get('page'))
-    ctx = {'locations': stock_locations, 'filter': stock_location_filter}
-    return TemplateResponse(
-        request,
-        'dashboard/product/stock_location/list.html',
-        ctx)
-
-
-@staff_member_required
-@permission_required('product.edit_stock_location')
-def stock_location_edit(request, location_pk=None):
-    if location_pk:
-        location = get_object_or_404(StockLocation, pk=location_pk)
-    else:
-        location = StockLocation()
-    form = forms.StockLocationForm(request.POST or None, instance=location)
-    if form.is_valid():
-        form.save()
-        msg = pgettext_lazy(
-            'Dashboard message for stock location',
-            'Updated location') if location_pk else pgettext_lazy(
-                'Dashboard message for stock location', 'Added location')
-        messages.success(request, msg)
-        return redirect('dashboard:product-stock-location-list')
-    return TemplateResponse(
-        request,
-        'dashboard/product/stock_location/form.html',
-        {'form': form, 'location': location})
-
-
-@staff_member_required
-@permission_required('product.edit_stock_location')
-def stock_location_delete(request, location_pk):
-    location = get_object_or_404(StockLocation, pk=location_pk)
-    stock_count = location.stock_set.count()
-    if request.method == 'POST':
-        location.delete()
-        messages.success(
-            request, pgettext_lazy(
-                'Dashboard message for stock location',
-                'Removed location %s') % location)
-        return redirect('dashboard:product-stock-location-list')
-    ctx = {'location': location, 'stock_count': stock_count}
-    return TemplateResponse(
-        request,
-        'dashboard/product/stock_location/modal/confirm_delete.html',
-        ctx)
 
 
 @require_POST
@@ -649,6 +497,7 @@ def ajax_upload_image(request, product_pk):
     product = get_object_or_404(Product, pk=product_pk)
     form = forms.UploadImageForm(
         request.POST or None, request.FILES or None, product=product)
+    form.instance.image.save(request.FILES['file'].name, request.FILES['file'])
     status = 200
     if form.is_valid():
         image = form.save()
@@ -707,9 +556,7 @@ def ajax_products_list(request):
     Returns products list filtered by request GET parameters.
     Response format is as required by select2 field.
     """
-    queryset = (
-        Product.objects.all() if request.user.has_perm('product.view_product')
-        else Product.objects.get_available_products())
+    queryset = Product.objects.all() 
     search_query = request.GET.get('q', '')
     if search_query:
         queryset = queryset.filter(Q(name__icontains=search_query))

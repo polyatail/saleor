@@ -3,7 +3,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist
 from django.utils.translation import npgettext_lazy, pgettext_lazy
-from django_countries.fields import LazyTypedChoiceField, countries
 from satchless.item import InsufficientStock
 
 
@@ -44,7 +43,6 @@ class AddToCartForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.cart = kwargs.pop('cart')
         self.product = kwargs.pop('product')
-        self.discounts = kwargs.pop('discounts', ())
         super(AddToCartForm, self).__init__(*args, **kwargs)
 
     def clean(self):

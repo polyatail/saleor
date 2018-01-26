@@ -104,7 +104,6 @@
               </div>
             {% endif %}
           </div>
-          {% if perms.product.edit_category %}
           <div class="card-action">
             <a class="btn-flat waves-effect" href="{% url 'dashboard:category-edit' root_pk=root.pk %}">Edit Company
             </a>
@@ -113,7 +112,6 @@
              href="#base-modal">Remove Company
             </a>
           </div>
-          {% endif %}
         </div>
         {% paginate categories %}
       </div>

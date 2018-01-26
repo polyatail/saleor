@@ -130,14 +130,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'django_babel.middleware.LocaleMiddleware',
-    'saleor.core.middleware.DiscountMiddleware',
-    'saleor.core.middleware.GoogleAnalytics',
-    'saleor.core.middleware.CountryMiddleware',
-    'saleor.core.middleware.CurrencyMiddleware',
-    'saleor.core.middleware.ClearSiteCacheMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware',
-    'impersonate.middleware.ImpersonateMiddleware'
 ]
 
 INSTALLED_APPS = [

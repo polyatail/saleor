@@ -4,12 +4,9 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.utils.encoding import smart_text
-from django_prices.templatetags import prices_i18n
-from prices import Price, PriceRange
 
 from . import ProductAvailabilityStatus, VariantAvailabilityStatus
 from ..cart.utils import get_cart_from_request, get_or_create_cart_from_request
-from ..core.utils import to_local_currency
 from .forms import ProductForm
 
 
@@ -24,7 +21,7 @@ def products_visible_to_user(user):
 def products_with_details(user):
     products = products_visible_to_user(user)
     products = products.prefetch_related(
-        'categories', 'images', 'variants__stock',
+        'categories', 'images', 
         'variants__variant_images__image', 'attributes__values',
         'product_class__variant_attributes__values',
         'product_class__product_attributes__values')
@@ -45,51 +42,18 @@ def get_product_images(product):
     return list(product.images.all())
 
 
-def products_with_availability(products, discounts, local_currency):
+def products_with_availability(products):
     for product in products:
-        yield product, get_availability(product, discounts, local_currency)
+        yield product, get_availability(product)
 
 
-ProductAvailability = namedtuple(
-    'ProductAvailability', (
-        'available', 'price_range', 'price_range_undiscounted', 'discount',
-        'price_range_local_currency', 'discount_local_currency'))
+ProductAvailability = namedtuple('ProductAvailability', ('available'))
 
 
-def get_availability(product, discounts=None, local_currency=None):
-#    # In default currency
-#    price_range = product.get_price_range(discounts=discounts)
-#    undiscounted = product.get_price_range()
-#    if undiscounted.min_price > price_range.min_price:
-#        discount = undiscounted.min_price - price_range.min_price
-#    else:
-#        discount = None
-#
-#    # Local currency
-#    if local_currency:
-#        price_range_local = to_local_currency(
-#            price_range, local_currency)
-#        undiscounted_local = to_local_currency(
-#            undiscounted, local_currency)
-#        if (undiscounted_local and
-#                undiscounted_local.min_price > price_range_local.min_price):
-#            discount_local_currency = (
-#                undiscounted_local.min_price - price_range_local.min_price)
-#        else:
-#            discount_local_currency = None
-#    else:
-#        price_range_local = None
-#        discount_local_currency = None
+def get_availability(product):
+    is_available = product.is_available()
 
-    is_available = product.is_in_stock() and product.is_available()
-
-    return ProductAvailability(
-        available=is_available,
-        price_range=0.0,
-        price_range_undiscounted=0.0,
-        discount=0.0,
-        price_range_local_currency=0.0,
-        discount_local_currency=0.0)
+    return ProductAvailability(available=is_available,)
 
 
 def handle_cart_form(request, product, create_cart=False):
@@ -98,8 +62,7 @@ def handle_cart_form(request, product, create_cart=False):
     else:
         cart = get_cart_from_request(request)
     form = ProductForm(
-        cart=cart, product=product, data=request.POST or None,
-        discounts=request.discounts)
+        cart=cart, product=product, data=request.POST or None)
     return form, cart
 
 
@@ -121,10 +84,6 @@ def product_json_ld(product, availability=None, attributes=None):
                        'itemCondition': 'http://schema.org/NewCondition'}}
 
     if availability is not None:
-        if availability.price_range:
-            data['offers']['priceCurrency'] = settings.DEFAULT_CURRENCY
-            data['offers']['price'] = availability.price_range.min_price.net
-
         if availability.available:
             data['offers']['availability'] = 'http://schema.org/InStock'
         else:
@@ -144,8 +103,8 @@ def product_json_ld(product, availability=None, attributes=None):
     return data
 
 
-def get_variant_picker_data(product, discounts=None, local_currency=None):
-    availability = get_availability(product, discounts, local_currency)
+def get_variant_picker_data(product):
+    availability = get_availability(product)
     variants = product.variants.all()
     data = {'variantAttributes': [], 'variants': []}
 
@@ -158,10 +117,7 @@ def get_variant_picker_data(product, discounts=None, local_currency=None):
         schema_data = {'@type': 'Offer',
                        'itemCondition': 'http://schema.org/NewCondition',}
 
-        if variant.is_in_stock():
-            schema_data['availability'] = 'http://schema.org/InStock'
-        else:
-            schema_data['availability'] = 'http://schema.org/OutOfStock'
+        schema_data['availability'] = 'http://schema.org/InStock'
 
         variant_data = {
             'id': variant.id,
@@ -195,23 +151,6 @@ def get_product_attributes_data(product):
     values_map = get_attributes_display_map(product, attributes)
     return {attributes_map.get(attr_pk): value_obj
             for (attr_pk, value_obj) in values_map.items()}
-
-
-def price_as_dict(price):
-    if not price:
-        return None
-    return {'currency': price.currency,
-            'gross': price.gross,
-            'grossLocalized': prices_i18n.gross(price),
-            'net': price.net,
-            'netLocalized': prices_i18n.net(price)}
-
-
-def price_range_as_dict(price_range):
-    if not price_range:
-        return None
-    return {'maxPrice': price_as_dict(price_range.max_price),
-            'minPrice': price_as_dict(price_range.min_price)}
 
 
 def get_variant_url_from_product(product, attributes):
@@ -251,74 +190,6 @@ def get_product_availability_status(product):
 
 
 def get_variant_availability_status(variant):
-    has_stock_records = variant.stock.exists()
-    if not has_stock_records:
-        return VariantAvailabilityStatus.NOT_CARRIED
-    elif not variant.is_in_stock():
-        return VariantAvailabilityStatus.OUT_OF_STOCK
-    else:
-        return VariantAvailabilityStatus.AVAILABLE
+     return VariantAvailabilityStatus.AVAILABLE
 
 
-def get_product_costs_data(product):
-    zero_price = Price(0, 0, currency=settings.DEFAULT_CURRENCY)
-    zero_price_range = PriceRange(zero_price, zero_price)
-    purchase_costs_range = zero_price_range
-    gross_margin = (0, 0)
-
-    if not product.variants.exists():
-        return purchase_costs_range, gross_margin
-
-    variants = product.variants.all()
-    costs, margins = get_cost_data_from_variants(variants)
-
-    if costs:
-        purchase_costs_range = PriceRange(min(costs), max(costs))
-    if margins:
-        gross_margin = (margins[0], margins[-1])
-    return purchase_costs_range, gross_margin
-
-
-def sort_cost_data(costs, margins):
-    costs = sorted(costs, key=lambda x: x.gross)
-    margins = sorted(margins)
-    return costs, margins
-
-
-def get_cost_data_from_variants(variants):
-    costs = []
-    margins = []
-    for variant in variants:
-        costs_data = get_variant_costs_data(variant)
-        costs += costs_data['costs']
-        margins += costs_data['margins']
-    return sort_cost_data(costs, margins)
-
-
-def get_variant_costs_data(variant):
-    costs = []
-    margins = []
-    for stock in variant.stock.all():
-        costs.append(get_cost_price(stock))
-        margin = get_margin_for_variant(stock)
-        if margin:
-            margins.append(margin)
-    costs = sorted(costs, key=lambda x: x.gross)
-    margins = sorted(margins)
-    return {'costs': costs, 'margins': margins}
-
-
-def get_cost_price(stock):
-    zero_price = Price(0, 0, currency=settings.DEFAULT_CURRENCY)
-    if not stock.cost_price:
-        return zero_price
-    return stock.cost_price
-
-
-def get_margin_for_variant(stock):
-    if not stock.cost_price:
-        return None
-    price = stock.variant.get_price_per_item()
-    margin = price - stock.cost_price
-    percent = round((margin.gross / price.gross) * 100, 0)
-    return percent

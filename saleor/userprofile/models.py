@@ -27,7 +27,7 @@ class UserManager(BaseUserManager):
             email, password, is_staff=True, is_superuser=True, **extra_fields)
 
 
-class User(PermissionsMixin, AbstractBaseUser):
+class User(AbstractBaseUser):
     email = models.EmailField(
         pgettext_lazy('User field', 'email'), unique=True)
     is_staff = models.BooleanField(

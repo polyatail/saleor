@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -15,7 +14,6 @@ from .forms import CategoryForm
 
 
 @staff_member_required
-@permission_required('product.view_category')
 def category_list(request):
     categories = Category.tree.root_nodes().order_by('name')
     category_filter = CategoryFilter(request.GET, queryset=categories)
@@ -27,7 +25,6 @@ def category_list(request):
 
 
 @staff_member_required
-@permission_required('product.edit_category')
 def category_create(request, root_pk=None):
     path = None
     category = Category()
@@ -50,7 +47,6 @@ def category_create(request, root_pk=None):
 
 
 @staff_member_required
-@permission_required('product.edit_category')
 def category_edit(request, root_pk=None):
     path = None
     category = get_object_or_404(Category, pk=root_pk)
@@ -78,7 +74,6 @@ def category_edit(request, root_pk=None):
 
 
 @staff_member_required
-@permission_required('product.view_category')
 def category_detail(request, pk):
     root = get_object_or_404(Category, pk=pk)
     path = root.get_ancestors(include_self=True) if root else []
@@ -93,7 +88,6 @@ def category_detail(request, pk):
 
 
 @staff_member_required
-@permission_required('product.edit_category')
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':

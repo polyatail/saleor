@@ -17,7 +17,6 @@
 
 {% block header_extra %}
   {% if product_classes %}
-    {% if perms.product.edit_product %}
       <div class="btn-fab-fixed">
         {% if product_classes|length > 1 %}
           <a class="btn-fab-default waves-effect waves-light modal-trigger" href="#modal-product-class" title="{% trans "Add product" context "Product list add button text" %}">
@@ -29,7 +28,6 @@
           </a>
         {% endif %}
       </div>
-    {% endif %}
   {% endif %}
 {% endblock %}
 
@@ -81,6 +79,12 @@
                   {% trans "Name" context "Products list table header" %}
                 </a>
               </th>
+              {% get_sort_by_toggle 'product_class' as toggle %}
+              <th class="wide {% if toggle.is_active %}active{% endif %}">
+                <a href="{{ toggle.url }}">
+                  <svg data-src="{{ toggle.sorting_icon }}" />Type
+                </a>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -97,6 +101,9 @@
               </td>
               <td>
                 {{ product.name }}
+              </td>
+              <td>
+                {{ product.product_class }}
               </td>
             </tr>
           {% endfor %}

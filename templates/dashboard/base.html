@@ -93,61 +93,43 @@
                 {% trans "Home" context "Dashboard homepage" %}
               </a>
             </li>
-            {% if perms.product.view_product or perms.product.view_category or perms.product.view_stock_location %}
             <li class="side-nav-section" id="first">
               <p>Catalog</p>
               <ul>
-              {% if perms.product.view_product %}
               <li class="{% block menu_products_class %}{% endblock %}">
                 <a href="{% url 'dashboard:product-list' %}">
                   {% trans "Products" context "Dashboard products list" %}
                 </a>
               </li>
-              {% endif %}
-              {% if perms.product.view_properties %}
               <li class="{% block menu_product_classes_class %}{% endblock %}">
                 <a href="{% url 'dashboard:product-class-list' %}">
                   {% trans "Product types" context "Dashboard product types list" %}
                 </a>
               </li>
-              {% endif %}
-              {% if perms.product.view_properties %}
               <li class="{% block menu_attributes_class %}{% endblock %}">
                 <a href="{% url 'dashboard:product-attributes' %}">
                   {% trans "Attributes" context "Dashboard attributes list" %}
                 </a>
               </li>
-              {% endif %}
               </ul>
             </li>
-            {% endif %}
-            {% if perms.order.view_order or perms.userprofile.view_user %}
             <li class="side-nav-section">
               <p>People Management</p>
               <ul>
-              {% if perms.product.view_category %}
               <li class="{% block menu_categories_class %}{% endblock %}">
                 <a href="{% url 'dashboard:category-list' %}">Companies</a>
               </li>
-              {% endif %}
-                  {% if perms.userprofile.view_staff %}
                   <li class="{% block menu_staff_class %}{% endblock %}">
                     <a href="{% url 'dashboard:staff-list' %}">User Accounts</a>
                   </li>
-                  {% endif %}
               </ul>
             </li>
-            {% endif %}
-            {% if perms.userprofile.view_group or perms.userprofile.edit_group %}
               <li class="side-nav-section">
                 <p>Order Management</p>
-                {% if perms.order.view_order %}
                   <a href="{% url 'dashboard:orders' %}">
                     {% trans "Orders" context "Dashboard orders list" %}
                   </a>
-                {% endif %}
               </li>
-            {% endif %}
           </ul>
         </div>
       </nav>

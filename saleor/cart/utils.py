@@ -7,12 +7,9 @@ from django.contrib import messages
 from django.db import transaction
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
-from prices import PriceRange
-from satchless.item import InsufficientStock
 
 from . import CartStatus
 from .models import Cart
-from ..core.utils import to_local_currency
 
 COOKIE_NAME = 'cart'
 
@@ -158,7 +155,6 @@ def get_or_create_cart_from_request(request, cart_queryset=Cart.objects.all()):
 
 def get_cart_from_request(request, cart_queryset=Cart.objects.all()):
     """Fetch cart from database or return a new instance based on cookie."""
-    discounts = request.discounts
     if request.user.is_authenticated:
         cart = get_user_cart(request.user, cart_queryset)
         user = request.user
@@ -167,9 +163,8 @@ def get_cart_from_request(request, cart_queryset=Cart.objects.all()):
         cart = get_anonymous_cart_from_token(token, cart_queryset)
         user = None
     if cart is not None:
-        cart.discounts = discounts
         return cart
-    return Cart(user=user, discounts=discounts)
+    return Cart(user=user)
 
 
 def get_or_create_db_cart(cart_queryset=Cart.objects.all()):
@@ -212,26 +207,3 @@ def get_or_empty_db_cart(cart_queryset=Cart.objects.all()):
     return get_cart
 
 
-def get_cart_data(cart, shipping_range, currency, discounts):
-    """Return a JSON-serializable representation of the cart."""
-    cart_total = None
-    local_cart_total = None
-    shipping_required = False
-    total_with_shipping = None
-    local_total_with_shipping = None
-    if cart:
-        cart_total = 0.0 #cart.get_total(discounts=discounts)
-        local_cart_total = 0.0 #to_local_currency(cart_total, currency)
-        shipping_required = 0.0 #cart.is_shipping_required()
-        total_with_shipping = 0.0 #PriceRange(cart_total)
-        if shipping_required and shipping_range:
-            total_with_shipping = 0.0 #shipping_range + cart_total
-        local_total_with_shipping = 0.0 #to_local_currency(
-            #total_with_shipping, currency)
-
-    return {
-        'cart_total': cart_total,
-        'local_cart_total': local_cart_total,
-        'shipping_required': shipping_required,
-        'total_with_shipping': total_with_shipping,
-        'local_total_with_shipping': local_total_with_shipping}

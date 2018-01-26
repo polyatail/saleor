@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import pgettext_lazy
@@ -14,7 +13,6 @@ from ...userprofile.models import User
 
 
 @staff_member_required
-@permission_required('userprofile.view_staff')
 def staff_list(request):
     staff_members = (User.objects.all()
                      .order_by('email'))
@@ -27,7 +25,6 @@ def staff_list(request):
 
 
 @staff_member_required
-@permission_required('userprofile.edit_staff')
 def staff_details(request, pk):
     queryset = User.objects.all()
     staff_member = get_object_or_404(queryset, pk=pk)
@@ -49,7 +46,6 @@ def staff_details(request, pk):
 
 
 @staff_member_required
-@permission_required('userprofile.edit_staff')
 def staff_create(request):
     staff = User()
     form = StaffForm(request.POST or None, instance=staff)
@@ -65,7 +61,6 @@ def staff_create(request):
 
 
 @staff_member_required
-@permission_required('userprofile.edit_staff')
 def staff_delete(request, pk):
     queryset = User.objects.prefetch_related(
         'orders')

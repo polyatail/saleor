@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 
 {% load bootstrap_field from bootstrap3 %}
-{% load i18n %}
-{% load gross from prices_i18n %}
 {% load markdown from markdown %}
-{% load price_range from price_ranges %}
+{% load i18n %}
 {% load staticfiles %}
 {% load get_thumbnail from product_images %}
 
@@ -84,26 +82,7 @@
             {% trans "Edit in dashboard" context "Product details link text" %}
         </a></p>
       {% endif %}
-      {% if availability.available %}
-        {% if show_variant_picker %}
-          <div id="variant-price-component"></div>
-        {% else %}
-          <h2 class="product__info__price">
-            <span>{% price_range availability.price_range %}</span>
-            {% if availability.discount %}
-              <small class="product__info__price__undiscounted">{% gross availability.price_range_undiscounted.min_price html=True %}</small>
-            {% endif %}
-            {% if availability.price_range_local_currency %}
-              <br>
-              <small class="text-info">
-                &asymp;
-                {% gross availability.price_range_local_currency.min_price html=True %}
-              </small>
-            {% endif %}
-          </h2>
-        {% endif %}
-      {% endif %}
-      {% if is_visible and product.is_in_stock %}
+      {% if is_visible %}
         {% block orderform %}
           {% if show_variant_picker %}
             {% csrf_token %}

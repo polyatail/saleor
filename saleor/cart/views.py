@@ -8,7 +8,7 @@ from .forms import ReplaceCartLineForm
 from ..product.models import ProductVariant
 from .models import Cart
 from .utils import (
-    check_product_availability_and_warn, get_cart_data, get_or_empty_db_cart)
+    check_product_availability_and_warn, get_or_empty_db_cart)
 
 
 @get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
@@ -46,10 +46,9 @@ def update(request, cart, variant_id):
     if not request.is_ajax():
         return redirect('cart:index')
     variant = get_object_or_404(ProductVariant, pk=variant_id)
-    discounts = request.discounts
     status = None
     form = ReplaceCartLineForm(
-        request.POST, cart=cart, variant=variant, discounts=discounts)
+        request.POST, cart=cart, variant=variant)
     if form.is_valid():
         form.save()
         response = {

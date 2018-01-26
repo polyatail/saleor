@@ -5,7 +5,6 @@ from django.urls import reverse_lazy
 from django.utils.translation import npgettext_lazy, pgettext_lazy
 from django_prices.forms import PriceField
 from payments import PaymentError, PaymentStatus
-from satchless.item import InsufficientStock
 
 from ...cart.forms import QuantityField
 from ...core.forms import AjaxSelect2ChoiceField
