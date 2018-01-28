@@ -74,19 +74,19 @@ def product_details(request, slug, product_id, form=None):
     else:
       product_images[0].active = True
 
-    return TemplateResponse(
-        request, 'product/details.html',
-        {'is_visible': is_visible,
-         'form': form,
-         'availability': availability,
-         'product': product,
-         'product_attributes': product_attributes,
-         'product_images': product_images,
-         'show_variant_picker': show_variant_picker,
-         'variant_picker_data': json.dumps(
-             variant_picker_data, default=serialize_decimal),
-         'json_ld_product_data': json.dumps(
-             json_ld_data, default=serialize_decimal)})
+    return ({'is_visible': is_visible,
+           'form': form,
+           'availability': availability,
+           'product': product,
+           'slug': product.get_slug(),
+           'image_count': range(len(product_images)),
+           'product_attributes': product_attributes,
+           'product_images': product_images,
+           'show_variant_picker': show_variant_picker,
+           'variant_picker_data': json.dumps(
+               variant_picker_data, default=serialize_decimal),
+           'json_ld_product_data': json.dumps(
+               json_ld_data, default=serialize_decimal)})
 
 
 def product_add_to_cart(request, slug, product_id):
@@ -127,18 +127,13 @@ def category_index(request, path, category_id):
     products = (products_with_details(user=request.user)
                 .filter(categories__id=category.id)
                 .order_by('name'))
-    product_filter = ProductFilter(
-        request.GET, queryset=products, category=category)
-    products_paginated = get_paginator_items(
-        product_filter.qs, settings.PAGINATE_BY, request.GET.get('page'))
-    products_and_availability = list(products_with_availability(products_paginated))
-    now_sorted_by = get_now_sorted_by(product_filter)
-    arg_sort_by = request.GET.get('sort_by')
-    is_descending = arg_sort_by.startswith('-') if arg_sort_by else False
-    ctx = {'category': category, 'filter': product_filter,
-           'products': products_and_availability,
-           'products_paginated': products_paginated,
-           'sort_by_choices': get_sort_by_choices(product_filter),
-           'now_sorted_by': now_sorted_by,
-           'is_descending': is_descending}
+
+    ret_products = []
+
+    for p in products:
+      ret_products.append(product_details(request, p.get_slug(), p.id))
+
+    ctx = {"category": category.name,
+           "products": ret_products}
+
     return TemplateResponse(request, 'category/index.html', ctx)

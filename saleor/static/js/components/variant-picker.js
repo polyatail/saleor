@@ -6,22 +6,28 @@ import variantPickerStore from '../stores/variantPicker';
 
 import {onAddToCartSuccess, onAddToCartError} from './cart';
 
-export default $(document).ready((e) => {
-  const variantPickerContainer = document.getElementById('variant-picker');
+const variantPickerContainer = document.getElementsByClassName('variant-picker');
 
-  if (variantPickerContainer) {
-    const variantPickerData = JSON.parse(variantPickerContainer.dataset.variantPickerData);
+for (var i = 0; i < variantPickerContainer.length; i++)
+{
+  console.log(i);
+  console.log(variantPickerContainer[i].dataset.variantPickerData);
+
+  if (variantPickerContainer[i].dataset.variantPickerData)
+  {
+    var variantData = JSON.parse(variantPickerContainer[i].dataset.variantPickerData);
+    var variantDataStore = new variantPickerStore();
+  
     ReactDOM.render(
       <VariantPicker
         onAddToCartError={onAddToCartError}
         onAddToCartSuccess={onAddToCartSuccess}
-        store={variantPickerStore}
-        url={variantPickerContainer.dataset.action}
-        variantAttributes={variantPickerData.variantAttributes}
-        variants={variantPickerData.variants}
+        store={variantDataStore}
+        url={variantPickerContainer[i].dataset.action}
+        variantAttributes={variantData.variantAttributes}
+        variants={variantData.variants}
       />,
-      variantPickerContainer
+      variantPickerContainer[i]
     );
-
   }
-});
+}

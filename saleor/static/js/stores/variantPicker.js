@@ -12,5 +12,4 @@ class VariantPickerStore {
   }
 }
 
-const store = new VariantPickerStore();
-export default store;
+export default VariantPickerStore;
