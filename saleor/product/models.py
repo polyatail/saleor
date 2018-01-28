@@ -45,7 +45,7 @@ class Category(MPTTModel):
         return self.name
 
     def get_absolute_url(self, ancestors=None):
-        return reverse('product:category',
+        return reverse('products',
                        kwargs={'path': self.get_full_path(ancestors),
                                'category_id': self.id})
 
@@ -137,11 +137,6 @@ class Product(models.Model, ItemRange):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse(
-            'product:details',
-            kwargs={'slug': self.get_slug(), 'product_id': self.id})
-
     def get_slug(self):
         return slugify(smart_text(unidecode(self.name)))
 
@@ -190,12 +185,6 @@ class ProductVariant(models.Model, Item):
 
     def check_quantity(self, quantity):
         pass
-
-    def get_absolute_url(self):
-        slug = self.product.get_slug()
-        product_id = self.product.id
-        return reverse('product:details',
-                       kwargs={'slug': slug, 'product_id': product_id})
 
     def as_data(self):
         return {

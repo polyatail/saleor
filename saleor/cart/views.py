@@ -78,8 +78,7 @@ def summary(request, cart):
             'attributes': line.variant.display_variant(attributes),
             'image': first_image,
             'update_url': reverse(
-                'cart:update-line', kwargs={'variant_id': line.variant_id}),
-            'variant_url': line.variant.get_absolute_url()}
+                'cart:update-line', kwargs={'variant_id': line.variant_id}),}
     if cart.quantity == 0:
         data = {'quantity': 0}
     else:

@@ -53,6 +53,8 @@ def product_details(request, slug, product_id, form=None):
     variant_picker_data = get_variant_picker_data(product)
     product_attributes = get_product_attributes_data(product)
     show_variant_picker = all([v.attributes for v in product.variants.all()])
+#    show_variant_picker = [v.attributes for v in product.variants.all()]
+#    show_variant_picker = True if all(show_variant_picker) and show_variant_picker else False
     json_ld_data = product_json_ld(product, availability, product_attributes)
 
 #    # figure out the appropriate variant image

@@ -133,7 +133,7 @@ export default class VariantPicker extends Component {
     const disableAddToCart = store.isEmpty;
 
     const addToCartBtnClasses = classNames({
-      'btn primary': true,
+      'btn btn-primary': true,
       'disabled': disableAddToCart
     });
 
@@ -158,7 +158,7 @@ export default class VariantPicker extends Component {
               className={addToCartBtnClasses}
               onClick={this.handleAddToCart}
               disabled={disableAddToCart}>
-              {pgettext('Product details primary action', 'Add to cart')}
+              ADD TO CART
             </button>
           </div>
         </div>

@@ -14,7 +14,7 @@ urlpatterns = [
     url(r'^categories/', include(category_urls)),
     url(r'^orders/', include(order_urls)),
     url(r'^products/', include(product_urls)),
-    url(r'^customers/', include(customer_urls)),
+#    url(r'^customers/', include(customer_urls)),
     url(r'^staff/', include(staff_urls)),
     url(r'^style-guide/', core_views.styleguide, name='styleguide'),
     url(r'^search/', include(search_urls)),

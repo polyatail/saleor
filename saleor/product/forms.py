@@ -10,8 +10,7 @@ from ..cart.forms import AddToCartForm
 class VariantChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         variant_label = smart_text(obj)
-        label = ''
-        return label
+        return variant_label
 
 
 class ProductForm(AddToCartForm):
@@ -20,7 +19,7 @@ class ProductForm(AddToCartForm):
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
         variant_field = self.fields['variant']
-        variant_field.queryset = self.product.variants
+        variant_field.queryset = self.product.variants.all()
         variant_field.empty_label = None
         images_map = {variant.pk: [vi.image.image.url
                                    for vi in variant.variant_images.all()]
