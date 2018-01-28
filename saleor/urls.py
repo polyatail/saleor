@@ -23,11 +23,8 @@ urlpatterns = [
         include((dashboard_urls, 'dashboard'), namespace='dashboard')),
     url(r'^graphql', GraphQLView.as_view(graphiql=settings.DEBUG)),
     url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-    url(r'^order/', include((order_urls, 'order'), namespace='order')),
     url(r'^products/',
         include((product_urls, 'product'), namespace='product')),
-    url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
-        name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.DEBUG:

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from .forms import ReplaceCartLineForm
 from ..product.models import ProductVariant
@@ -11,6 +12,7 @@ from .utils import (
     check_product_availability_and_warn, get_or_empty_db_cart)
 
 
+@login_required
 @get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
 def index(request, cart):
     """Display cart details."""
@@ -40,6 +42,7 @@ def index(request, cart):
         request, 'cart/index.html', ctx)
 
 
+@login_required
 @get_or_empty_db_cart()
 def update(request, cart, variant_id):
     """Update the line quantities."""
@@ -64,6 +67,7 @@ def update(request, cart, variant_id):
     return JsonResponse(response, status=status)
 
 
+@login_required
 @get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
 def summary(request, cart):
     """Display a cart summary suitable for displaying on all pages."""

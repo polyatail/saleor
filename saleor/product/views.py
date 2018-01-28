@@ -6,6 +6,7 @@ from django.http import HttpResponsePermanentRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from ..cart.utils import set_cart_cookie
 from ..core.utils import get_paginator_items, serialize_decimal
@@ -17,7 +18,7 @@ from .utils import (
     get_variant_picker_data, handle_cart_form, product_json_ld,
     products_for_cart, products_with_availability, products_with_details)
 
-
+@login_required
 def product_details(request, slug, product_id, form=None):
     """Product details page
 
@@ -93,7 +94,7 @@ def product_details(request, slug, product_id, form=None):
            'json_ld_product_data': json.dumps(
                json_ld_data, default=serialize_decimal)})
 
-
+@login_required
 def product_add_to_cart(request, slug, product_id):
     # types: (int, str, dict) -> None
 
@@ -120,7 +121,7 @@ def product_add_to_cart(request, slug, product_id):
         set_cart_cookie(cart, response)
     return response
 
-
+@login_required
 def category_index(request, path, category_id):
     category_id = request.user.company.id
 
