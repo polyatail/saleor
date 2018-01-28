@@ -10,17 +10,11 @@ from ...userprofile.models import User
 
 
 SORT_BY_FIELDS = (
-    ('email', 'email'),
-    ('default_billing_address__first_name', 'name'),
-    ('default_billing_address__city', 'location'))
+    ('email', 'email'),)
 
 SORT_BY_FIELDS_LABELS = {
     'email': pgettext_lazy(
-        'Customer list sorting option', 'email'),
-    'default_billing_address__first_name': pgettext_lazy(
-        'Customer list sorting option', 'name'),
-    'default_billing_address__city': pgettext_lazy(
-        'Customer list sorting option', 'location')}
+        'Customer list sorting option', 'email'),}
 
 IS_ACTIVE_CHOICES = (
     ('1', pgettext_lazy('Is active filter choice', 'Active')),
@@ -29,11 +23,8 @@ IS_ACTIVE_CHOICES = (
 
 class UserFilter(SortedFilterSet):
     name_or_email = CharFilter(
-        label=pgettext_lazy('Customer name or email filter', 'Name or email'),
+        label="Email",
         method='filter_by_customer')
-    location = CharFilter(
-        label=pgettext_lazy('Customer list filter label', 'Location'),
-        method='filter_by_location')
     is_active = ChoiceFilter(
         label=pgettext_lazy('Customer list filter label', 'Is active'),
         choices=IS_ACTIVE_CHOICES,
@@ -49,22 +40,6 @@ class UserFilter(SortedFilterSet):
         fields = []
 
     def filter_by_customer(self, queryset, name, value):
-        return queryset.filter(
-            Q(email__icontains=value) |
-            Q(default_billing_address__first_name__icontains=value) |
-            Q(default_billing_address__last_name__icontains=value))
+        return queryset.filter(Q(email__icontains=value))
 
-    def filter_by_location(self, queryset, name, value):
-        q = Q(default_billing_address__city__icontains=value)
-        q |= Q(default_billing_address__country__icontains=value)
-        country_codes = self.get_mapped_country_codes_from_search(value)
-        for code in country_codes:
-            q |= Q(default_billing_address__country__icontains=code)
-        return queryset.filter(q)
 
-    def get_mapped_country_codes_from_search(self, value):
-        country_codes = []
-        for code, country in dict(countries).items():
-            if value.lower() in country.lower():
-                country_codes.append(code)
-        return country_codes

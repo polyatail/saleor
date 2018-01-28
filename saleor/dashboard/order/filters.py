@@ -15,19 +15,15 @@ from ..widgets import DateRangeWidget, PriceRangeWidget
 SORT_BY_FIELDS = (
     ('pk', 'pk'),
     ('status', 'status'),
-    ('payments__status', 'payment_status'),
     ('user__email', 'email'),
     ('created', 'created'),
-    ('total_net', 'total')
 )
 
 SORT_BY_FIELDS_LABELS = {
     'pk': pgettext_lazy('Order list sorting option', '#'),
     'status': pgettext_lazy('Order list sorting option', 'status'),
-    'payments__status': pgettext_lazy('Order list sorting option', 'payment'),
     'user__email': pgettext_lazy('Order list sorting option', 'email'),
-    'created': pgettext_lazy('Order list sorting option', 'created'),
-    'total_net': pgettext_lazy('Order list sorting option', 'created')}
+    'created': pgettext_lazy('Order list sorting option', 'created'),}
 
 
 class OrderFilter(SortedFilterSet):
@@ -35,7 +31,7 @@ class OrderFilter(SortedFilterSet):
         label=pgettext_lazy('Order list filter label', 'ID'))
     name_or_email = CharFilter(
         label=pgettext_lazy(
-            'Order list filter label', 'Customer name or email'),
+            'Order list filter label', 'Email'),
         method='filter_by_order_customer')
     created = DateFromToRangeFilter(
         label=pgettext_lazy('Order list filter label', 'Placed on'),
@@ -46,15 +42,6 @@ class OrderFilter(SortedFilterSet):
         choices=OrderStatus.CHOICES,
         empty_label=pgettext_lazy('Filter empty choice label', 'All'),
         widget=forms.Select)
-    payment_status = ChoiceFilter(
-        label=pgettext_lazy('Order list filter label', 'Payment status'),
-        name='payments__status',
-        choices=PaymentStatus.CHOICES,
-        empty_label=pgettext_lazy('Filter empty choice label', 'All'),
-        widget=forms.Select)
-    total_net = RangeFilter(
-        label=pgettext_lazy('Order list filter label', 'Total'),
-        widget=PriceRangeWidget)
     sort_by = OrderingFilter(
         label=pgettext_lazy('Order list filter label', 'Sort by'),
         fields=SORT_BY_FIELDS,
@@ -66,6 +53,4 @@ class OrderFilter(SortedFilterSet):
 
     def filter_by_order_customer(self, queryset, name, value):
         return queryset.filter(
-            Q(user__email__icontains=value) |
-            Q(user__default_billing_address__first_name__icontains=value) |
-            Q(user__default_billing_address__last_name__icontains=value))
+            Q(user__email__icontains=value))
