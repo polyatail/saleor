@@ -86,7 +86,7 @@ export default class VariantPicker extends Component {
           params[attribute.slug] = value.slug;
         }
       });
-      history.pushState(null, null, '?' + queryString.stringify(params));
+      //history.pushState(null, null, '?' + queryString.stringify(params));
     });
   }
 
