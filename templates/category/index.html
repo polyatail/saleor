@@ -20,7 +20,15 @@
 
 {% block content %}
 
+<div class="container" id="rows_of_items">
 {% for proddata in products %}
+
+  {% if proddata.index|divisibleby:3 %}
+    {% if proddata.index > 0 %}</div>{% endif %}
+    <div class="row">
+  {% endif %}
+  <div class="col-4">
+
   {% with product=proddata.product %}
     <div class="container" id="{{ proddata.slug }}">
       <div id="product-schema-component">
@@ -28,17 +36,17 @@
       </div>
     
       <div class="row">
-        <div class="col-sm-4">
+        <div class="col">
           <h2 class="product__info__name"><center>{{ product.name }}</center></h2>
         </div>
       </div>
     
       <div class="row">
-        <div class="col-sm-4">
-          {% if product.images %}
+        <div class="col">
+          {% if product.images.count > 0 %}
             <div id="carousel-{{ proddata.slug }}" class="carousel slide">
               <ol class="carousel-indicators">
-                {% for i in product.image_count %}
+                {% for i in proddata.image_count %}
                   <li data-target="#carousel-{{ proddata.slug }}" data-slide-to="{{ i }}"{% if i == 0 %} class="active"{% endif %}></li>
                 {% endfor %}
               </ol>
@@ -63,8 +71,8 @@
               {% endif %}
             </div>
           {% else %}
-            <img src="{% static 'images/placeholder270x270.png' %}"
-                 srcset="{% static 'images/placeholder270x270.png' %} 1x, {% static 'images/placeholder1080x1080.png' %} 2x"
+            <img src="{% static 'images/placeholder540x540.png' %}"
+                 srcset="{% static 'images/placeholder540x540.png' %} 1x, {% static 'images/placeholder1080x1080.png' %} 2x"
                  alt=""
                  class="img-fluid">
           {% endif %}
@@ -72,7 +80,7 @@
       </div>
     
       <div class="row">
-        <div class="col-sm-4">
+        <div class="col">
           {% if proddata.show_variant_picker %}
             {% csrf_token %}
             <div class="variant-picker" data-variant-picker-data="{{ proddata.variant_picker_data }}" data-action="{% url 'product:add-to-cart' product_id=product.pk slug=product.get_slug %}"></div>
@@ -91,6 +99,9 @@
       </div>
     </div>
   {% endwith %}
+
+  </div>
 {% endfor %}
+</div>
 
 {% endblock content %}

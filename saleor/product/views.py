@@ -55,23 +55,26 @@ def product_details(request, slug, product_id, form=None):
     show_variant_picker = all([v.attributes for v in product.variants.all()])
     json_ld_data = product_json_ld(product, availability, product_attributes)
 
-    # figure out the appropriate variant image
-    variant_finder = {}
+#    # figure out the appropriate variant image
+#    variant_finder = {}
+#
+#    for k, v in request.GET.items():
+#      k_id = get_object_or_404(ProductAttribute, slug=k).id
+#      v_id = get_object_or_404(AttributeChoiceValue, attribute_id=k_id, slug=v).id
+#
+#      variant_finder["attributes__%d" % k_id] = v_id
+#
+#    picked_variant = ProductVariant.objects.filter(**variant_finder).first()
+#
+#    # try to match this variant's images to the product_images
+#    for pi_idx in range(len(product_images)):
+#      if product_images[pi_idx] == picked_variant.images.first():
+#        product_images[pi_idx].active = True
+#        break
+#    else:
+#      product_images[0].active = True
 
-    for k, v in request.GET.items():
-      k_id = get_object_or_404(ProductAttribute, slug=k).id
-      v_id = get_object_or_404(AttributeChoiceValue, attribute_id=k_id, slug=v).id
-
-      variant_finder["attributes__%d" % k_id] = v_id
-
-    picked_variant = ProductVariant.objects.filter(**variant_finder).first()
-
-    # try to match this variant's images to the product_images
-    for pi_idx in range(len(product_images)):
-      if product_images[pi_idx] == picked_variant.images.first():
-        product_images[pi_idx].active = True
-        break
-    else:
+    if product_images:
       product_images[0].active = True
 
     return ({'is_visible': is_visible,
@@ -130,8 +133,10 @@ def category_index(request, path, category_id):
 
     ret_products = []
 
-    for p in products:
-      ret_products.append(product_details(request, p.get_slug(), p.id))
+    for p_num, p in enumerate(products):
+      p_deets = product_details(request, p.get_slug(), p.id)
+      p_deets["index"] = p_num
+      ret_products.append(p_deets)
 
     ctx = {"category": category.name,
            "products": ret_products}
