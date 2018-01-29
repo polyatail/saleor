@@ -16,7 +16,7 @@ def login(request):
 @login_required
 def logout(request):
     auth.logout(request)
-    messages.success(request, _('You have been successfully logged out.'))
+    messages.success(request, ('You have been successfully logged out.'))
     return redirect(settings.LOGIN_REDIRECT_URL)
 
 
