@@ -162,18 +162,18 @@ INSTALLED_APPS = [
     'versatileimagefield',
     'django_babel',
     'bootstrap3',
-    'django_prices',
-    'django_prices_openexchangerates',
+#    'django_prices',
+#    'django_prices_openexchangerates',
     'graphene_django',
     'mptt',
-    'payments',
+#    'payments',
     'webpack_loader',
-    'social_django',
-    'django_countries',
+#    'social_django',
+#    'django_countries',
     'django_filters',
     'django_celery_results',
-    'impersonate',
-    'phonenumber_field',
+#    'impersonate',
+#    'phonenumber_field',
 ]
 
 LOGGING = {
@@ -251,12 +251,12 @@ def get_host():
     return Site.objects.get_current().domain
 
 
-PAYMENT_HOST = get_host
-
-PAYMENT_MODEL = 'order.Payment'
-
-PAYMENT_VARIANTS = {
-    'default': ('payments.dummy.DummyProvider', {})}
+#PAYMENT_HOST = get_host
+#
+#PAYMENT_MODEL = 'order.Payment'
+#
+#PAYMENT_VARIANTS = {
+#    'default': ('payments.dummy.DummyProvider', {})}
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
@@ -375,28 +375,28 @@ GRAPHENE = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'saleor.registration.backends.facebook.CustomFacebookOAuth2',
-    'saleor.registration.backends.google.CustomGoogleOAuth2',
+#    'saleor.registration.backends.facebook.CustomFacebookOAuth2',
+#    'saleor.registration.backends.google.CustomGoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-SOCIAL_AUTH_PIPELINE = [
-    'social_core.pipeline.social_auth.social_details',
-    'social_core.pipeline.social_auth.social_uid',
-    'social_core.pipeline.social_auth.auth_allowed',
-    'social_core.pipeline.social_auth.social_user',
-    'social_core.pipeline.social_auth.associate_by_email',
-    'social_core.pipeline.user.create_user',
-    'social_core.pipeline.social_auth.associate_user',
-    'social_core.pipeline.social_auth.load_extra_data',
-    'social_core.pipeline.user.user_details',
-]
+#SOCIAL_AUTH_PIPELINE = [
+#    'social_core.pipeline.social_auth.social_details',
+#    'social_core.pipeline.social_auth.social_uid',
+#    'social_core.pipeline.social_auth.auth_allowed',
+#    'social_core.pipeline.social_auth.social_user',
+#    'social_core.pipeline.social_auth.associate_by_email',
+#    'social_core.pipeline.user.create_user',
+#    'social_core.pipeline.social_auth.associate_user',
+#    'social_core.pipeline.social_auth.load_extra_data',
+#    'social_core.pipeline.user.user_details',
+#]
 
-SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
-SOCIAL_AUTH_USER_MODEL = AUTH_USER_MODEL
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, email'}
+#SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+#SOCIAL_AUTH_USER_MODEL = AUTH_USER_MODEL
+#SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+#SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+#    'fields': 'id, email'}
 
 # CELERY SETTINGS
 CELERY_BROKER_URL = os.environ.get('REDIS_BROKER_URL') or ''
@@ -406,9 +406,9 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'django-db'
 
-# Impersonate module settings
-IMPERSONATE_URI_EXCLUSIONS = [r'^dashboard/']
-IMPERSONATE_CUSTOM_USER_QUERYSET = \
-    'saleor.userprofile.impersonate.get_impersonatable_users'
-IMPERSONATE_USE_HTTP_REFERER = True
-IMPERSONATE_CUSTOM_ALLOW = 'saleor.userprofile.impersonate.can_impersonate'
+## Impersonate module settings
+#IMPERSONATE_URI_EXCLUSIONS = [r'^dashboard/']
+#IMPERSONATE_CUSTOM_USER_QUERYSET = \
+#    'saleor.userprofile.impersonate.get_impersonatable_users'
+#IMPERSONATE_USE_HTTP_REFERER = True
+#IMPERSONATE_CUSTOM_ALLOW = 'saleor.userprofile.impersonate.can_impersonate'

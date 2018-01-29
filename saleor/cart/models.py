@@ -9,9 +9,7 @@ from django.db import models
 from django.utils.encoding import smart_str
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
-from django_prices.models import PriceField
 from jsonfield import JSONField
-from prices import Price
 from satchless.item import ItemLine, ItemList, partition
 
 from . import CartStatus, logger

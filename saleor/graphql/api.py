@@ -2,7 +2,6 @@ import functools
 import operator
 
 from django.db.models import Q
-from django_prices.templatetags import prices_i18n
 import graphene
 from graphene import relay
 from graphene_django import DjangoConnectionField, DjangoObjectType
@@ -30,11 +29,6 @@ def get_ancestors_from_cache(category, context):
 
 class ProductAvailabilityType(graphene.ObjectType):
     available = graphene.Boolean()
-    discount = graphene.Field(lambda: PriceType)
-    discount_local_currency = graphene.Field(lambda: PriceType)
-    price_range = graphene.Field(lambda: PriceRangeType)
-    price_range_undiscounted = graphene.Field(lambda: PriceRangeType)
-    price_range_local_currency = graphene.Field(lambda: PriceRangeType)
 
 
 class ProductType(DjangoObjectType):
@@ -46,7 +40,6 @@ class ProductType(DjangoObjectType):
     images = graphene.List(lambda: ProductImageType)
     variants = graphene.List(lambda: ProductVariantType)
     availability = graphene.Field(lambda: ProductAvailabilityType)
-    price = graphene.Field(lambda: PriceType)
 
     class Meta:
         model = Product
@@ -84,12 +77,6 @@ class CategoryType(DjangoObjectType):
             graphene.String,
             description="""A name of field to sort the products by. The negative
                 sign in front of name implies descending order."""),
-        price_lte=graphene.Argument(
-            graphene.Float, description="""Get the products with price lower
-                than or equal to the given value"""),
-        price_gte=graphene.Argument(
-            graphene.Float, description="""Get the products with price greater
-                than or equal to the given value"""))
     products_count = graphene.Int()
     url = graphene.String()
     ancestors = graphene.List(lambda: CategoryType)
@@ -119,7 +106,7 @@ class CategoryType(DjangoObjectType):
     def resolve_products(self, info, **args):
         context = info.context
         qs = products_visible_to_user(context.user)
-        qs = qs.prefetch_related('images', 'categories', 'variants__stock')
+        qs = qs.prefetch_related('images', 'categories')
         qs = qs.filter(categories=self)
 
         attributes_filter, order_by, price_lte, price_gte = map(
@@ -163,19 +150,6 @@ class CategoryType(DjangoObjectType):
         if order_by:
             qs = qs.order_by(order_by)
 
-        def filter_by_price(queryset, value, operator):
-            return [
-                obj for obj in queryset
-                if operator(
-                    get_availability(obj, context.discounts)
-                    .price_range.min_price.gross, value)
-            ]
-
-        if price_lte:
-            qs = filter_by_price(qs, price_lte, operator.le)
-
-        if price_gte:
-            qs = filter_by_price(qs, price_gte, operator.ge)
         return qs
 
 
@@ -220,25 +194,6 @@ class ProductAttributeType(DjangoObjectType):
 
     def resolve_values(self, info):
         return self.values.all()
-
-
-class PriceType(graphene.ObjectType):
-    currency = graphene.String()
-    gross = graphene.Float()
-    gross_localized = graphene.String()
-    net = graphene.Float()
-    net_localized = graphene.String()
-
-    def resolve_gross_localized(self, info):
-        return prices_i18n.gross(self)
-
-    def resolve_net_localized(self, info):
-        return prices_i18n.net(self)
-
-
-class PriceRangeType(graphene.ObjectType):
-    max_price = graphene.Field(lambda: PriceType)
-    min_price = graphene.Field(lambda: PriceType)
 
 
 class Query(graphene.ObjectType):

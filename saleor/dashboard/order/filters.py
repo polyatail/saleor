@@ -4,7 +4,6 @@ from django.utils.translation import pgettext_lazy
 from django_filters import (
     CharFilter, ChoiceFilter, DateFromToRangeFilter, NumberFilter, RangeFilter,
     OrderingFilter)
-from payments import PaymentStatus
 
 from ...core.filters import SortedFilterSet
 from ...order import OrderStatus

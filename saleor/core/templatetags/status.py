@@ -1,5 +1,4 @@
 from django.template import Library
-from payments import PaymentStatus
 
 from ...order import OrderStatus
 from ...product import (
@@ -10,7 +9,7 @@ from ...product.utils import (
 register = Library()
 
 
-ERRORS = {PaymentStatus.ERROR, PaymentStatus.REJECTED}
+ERRORS = {}
 SUCCESSES = {OrderStatus.SHIPPED,}
 
 

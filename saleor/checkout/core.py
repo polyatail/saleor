@@ -7,18 +7,12 @@ from django.db import transaction
 from django.forms.models import model_to_dict
 from django.utils.encoding import smart_text
 from django.utils.translation import get_language
-from prices import FixedDiscount, Price
 
 from ..cart.models import Cart
 from ..cart.utils import get_or_empty_db_cart
 from ..core import analytics
 from ..order.models import Order, OrderLine
 from ..order.utils import fill_group_with_partition
-from ..shipping.models import ANY_COUNTRY, ShippingMethodCountry
-from ..userprofile.models import Address
-from ..userprofile.utils import store_user_address
-
-from phonenumber_field.phonenumber import PhoneNumber
 
 STORAGE_SESSION_KEY = 'checkout_storage'
 

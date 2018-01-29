@@ -8,10 +8,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
-from django_prices.models import PriceField
-from payments import PaymentStatus, PurchasedItem
-from payments.models import BasePayment
-from prices import FixedDiscount, Price
 from satchless.item import ItemLine, ItemSet
 
 from . import OrderStatus, emails

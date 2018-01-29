@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.utils.translation import pgettext_lazy
 from django_filters import (
     CharFilter, ChoiceFilter, OrderingFilter)
-from django_countries import countries
 
 from ...core.filters import SortedFilterSet
 from ...userprofile.models import User
