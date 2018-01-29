@@ -87,7 +87,3 @@ ORDER_STATUS_CHOICES = [
 ] + OrderStatus.CHOICES
 
 
-PAYMENT_STATUS_CHOICES = [
-    ('', pgettext_lazy('Payment status field value', 'All')),
-] + PaymentStatus.CHOICES
-

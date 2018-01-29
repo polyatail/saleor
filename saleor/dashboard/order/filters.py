@@ -8,7 +8,7 @@ from django_filters import (
 from ...core.filters import SortedFilterSet
 from ...order import OrderStatus
 from ...order.models import Order
-from ..widgets import DateRangeWidget, PriceRangeWidget
+from ..widgets import DateRangeWidget
 
 
 SORT_BY_FIELDS = (

@@ -5,7 +5,6 @@ from django_filters import (
     OrderingFilter)
 
 from ...core.filters import SortedFilterSet
-from ..widgets import PriceRangeWidget
 from ...product.models import (
     Category, Product, ProductAttribute, ProductClass)
 
