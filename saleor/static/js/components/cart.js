@@ -14,8 +14,8 @@ export const onAddToCartSuccess = () => {
   $.get(summaryLink, (data) => {
     $cartDropdown.html(data);
     $addToCartError.html('');
-    var newQunatity = $('.cart-dropdown__total').data('quantity');
-    $('.badge').html(newQunatity).removeClass('empty');
+    var newQuantity = $('.cart-dropdown__total').data('quantity');
+    $('.badge').html(newQuantity).removeClass('empty');
     $cartDropdown.addClass('show');
     $cartIcon.addClass('hover');
     $cartDropdown.find('.cart-dropdown__list').scrollTop($cartDropdown.find('.cart-dropdown__list')[0].scrollHeight);

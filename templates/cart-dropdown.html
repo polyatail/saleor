@@ -8,7 +8,7 @@
     {% for line in lines %}
       <div class="row item">
         <div class="col-md-10">
-          <a class="link--clean" href="{{ line.variant_url }}">
+          <a class="link--clean">
             <img class="cart-dropdown__image" src="{% get_thumbnail line.image size="60x60" %}"
                  srcset="{% get_thumbnail line.image size="60x60" %} 1x, {% get_thumbnail line.image size="120x120" %} 2x"
                  alt="">
@@ -26,20 +26,10 @@
       </div>
     {% endfor %}
     </div>
-    <div class="row cart-dropdown__total" data-quantity="{{ quantity }}">
-      <div class="col-md-8">
-        <h3>Total Number of Items
-      </div>
-      <div class="col-md-4">
-        <h3 class="float-md-right price {% if lines|length <= 2 %}single{% endif %}" data-quantity="{{ quantity }}">
-          <p>{{ quantity }}</p>
-        </h3>
-      </div>
-    </div>
+    <div class="cart-dropdown__total" data-quantity="{{ quantity }}"></div>
     <div class="row cart-dropdown__actions">
-      <div class="col-md-1"></div>
-      <div class="col-md-5">
-        <a href="{% url "cart:index" %}" class="btn secondary narrow float-md-right">{% trans "Go to cart" context "Cart dropdown secondary action" %}</a>
+      <div class="col-md-12 text-center">
+        <a href="{% url "cart:index" %}" class="btn secondary narrow">{% trans "Go to cart" context "Cart dropdown secondary action" %}</a>
       </div>
     </div>
   {% else %}

@@ -27,75 +27,73 @@
     {% if proddata.index > 0 %}</div>{% endif %}
     <div class="row">
   {% endif %}
-  <div class="col-4">
+  <div class="col-md-4 col-xs-12">
 
   {% with product=proddata.product %}
-    <div class="container" id="{{ proddata.slug }}">
-      <div id="product-schema-component">
-        <script type="application/ld+json">{{ proddata.json_ld_product_data|safe }}</script>
+    <div id="product-schema-component">
+      <script type="application/ld+json">{{ proddata.json_ld_product_data|safe }}</script>
+    </div>
+  
+    <div class="row">
+      <div class="col">
+        <h2 class="product__info__name"><center>{{ product.name }}</center></h2>
       </div>
-    
-      <div class="row">
-        <div class="col">
-          <h2 class="product__info__name"><center>{{ product.name }}</center></h2>
-        </div>
-      </div>
-    
-      <div class="row">
-        <div class="col">
-          {% if product.images.count > 0 %}
-            <div id="carousel-{{ proddata.slug }}" class="carousel slide">
-              <ol class="carousel-indicators">
-                {% for i in proddata.image_count %}
-                  <li data-target="#carousel-{{ proddata.slug }}" data-slide-to="{{ i }}"{% if i == 0 %} class="active"{% endif %}></li>
-                {% endfor %}
-              </ol>
+    </div>
+  
+    <div class="row">
+      <div class="col">
+        {% if product.images.count > 0 %}
+          <div id="carousel-{{ proddata.slug }}" class="carousel slide">
+            <ol class="carousel-indicators">
+              {% for i in proddata.image_count %}
+                <li data-target="#carousel-{{ proddata.slug }}" data-slide-to="{{ i }}"{% if i == 0 %} class="active"{% endif %}></li>
+              {% endfor %}
+            </ol>
 
-              <div class="carousel-inner" role="listbox">
-                {% for image in product.images.all %}
-                  <div class="carousel-item{% if image.active %} active{% endif %}">
-                    <img class="d-block img-fluid"
-                         src="{% get_thumbnail image.image method="crop" size="270x270" %}"
-                         srcset="{% get_thumbnail image.image method="crop" size="270x270" %} 1x, {% get_thumbnail image.image method="crop" size="1080x1080" %} 2x" alt="">
-                  </div>
-                {% endfor %}
-              </div>
-
-              {% if product.images.count > 1 %}
-                <a class="carousel-control-prev" href="#carousel-{{ proddata.slug }}" role="button" data-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                </a>
-                <a class="carousel-control-next" href="#carousel-{{ proddata.slug }}" role="button" data-slide="next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                </a>
-              {% endif %}
+            <div class="carousel-inner" role="listbox">
+              {% for image in product.images.all %}
+                <div class="carousel-item{% if image.active %} active{% endif %}">
+                  <img class="d-block img-fluid"
+                       src="{% get_thumbnail image.image method="crop" size="270x270" %}"
+                       srcset="{% get_thumbnail image.image method="crop" size="270x270" %} 1x, {% get_thumbnail image.image method="crop" size="1080x1080" %} 2x" alt="">
+                </div>
+              {% endfor %}
             </div>
-          {% else %}
-            <img src="{% static 'images/placeholder540x540.png' %}"
-                 srcset="{% static 'images/placeholder540x540.png' %} 1x, {% static 'images/placeholder1080x1080.png' %} 2x"
-                 alt=""
-                 class="img-fluid">
-          {% endif %}
-        </div>
+
+            {% if product.images.count > 1 %}
+              <a class="carousel-control-prev" href="#carousel-{{ proddata.slug }}" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              </a>
+              <a class="carousel-control-next" href="#carousel-{{ proddata.slug }}" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              </a>
+            {% endif %}
+          </div>
+        {% else %}
+          <img src="{% static 'images/placeholder540x540.png' %}"
+               srcset="{% static 'images/placeholder540x540.png' %} 1x, {% static 'images/placeholder1080x1080.png' %} 2x"
+               alt=""
+               class="img-fluid">
+        {% endif %}
       </div>
-    
-      <div class="row">
-        <div class="col">
-          {% if proddata.show_variant_picker %}
+    </div>
+  
+    <div class="row">
+      <div class="col">
+        {% if proddata.show_variant_picker %}
+          {% csrf_token %}
+          <div class="variant-picker" data-variant-picker-data="{{ proddata.variant_picker_data }}" data-action="{% url 'product:add-to-cart' product_id=product.pk slug=product.get_slug %}"></div>
+        {% else %}
+          <form id="product-form-{{ proddata.slug }}" role="form" class="product-form clearfix" method="post"
+                action="{% url 'product:add-to-cart' product_id=product.pk slug=proddata.slug %}" novalidate>
             {% csrf_token %}
-            <div class="variant-picker" data-variant-picker-data="{{ proddata.variant_picker_data }}" data-action="{% url 'product:add-to-cart' product_id=product.pk slug=product.get_slug %}"></div>
-          {% else %}
-            <form id="product-form-{{ proddata.slug }}" role="form" class="product-form clearfix" method="post"
-                  action="{% url 'product:add-to-cart' product_id=product.pk slug=proddata.slug %}" novalidate>
-              {% csrf_token %}
-              {% bootstrap_field proddata.form.variant %}
-              <div class="product__info__quantity">{% bootstrap_field proddata.form.quantity %}</div>
-              <div class="form-group product__info__button">
-                <button class="btn btn-primary">ADD TO CART</button>
-              </div>
-            </form>
-          {% endif %}
-        </div>
+            {% bootstrap_field proddata.form.variant %}
+            <div class="product__info__quantity">{% bootstrap_field proddata.form.quantity %}</div>
+            <div class="form-group product__info__button">
+              <button class="btn btn-primary">ADD TO CART</button>
+            </div>
+          </form>
+        {% endif %}
       </div>
     </div>
   {% endwith %}

@@ -99,13 +99,12 @@ def product_add_to_cart(request, slug, product_id):
     # types: (int, str, dict) -> None
 
     if not request.method == 'POST':
-        return redirect(reverse(
-            'product:details',
-            kwargs={'product_id': product_id, 'slug': slug}))
+        return redirect(reverse('category:index'))
 
     products = products_for_cart(user=request.user)
     product = get_object_or_404(products, pk=product_id)
     form, cart = handle_cart_form(request, product, create_cart=True)
+
     if form.is_valid():
         form.save()
         if request.is_ajax():
