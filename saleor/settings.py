@@ -10,6 +10,9 @@ import django_cache_url
 def get_list(text):
     return [item.strip() for item in text.split(',')]
 
+SITE_NAME = 'OrderWrite'
+SITE_DOMAIN = ''
+SITE_DESCRIPTION = ''
 
 DEBUG = ast.literal_eval(os.environ.get('DEBUG', 'True'))
 
@@ -94,14 +97,14 @@ context_processors = [
     'django.template.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
     'django.template.context_processors.request',
-    'saleor.core.context_processors.default_currency',
+#    'saleor.core.context_processors.default_currency',
     'saleor.core.context_processors.categories',
     'saleor.cart.context_processors.cart_counter',
     'saleor.core.context_processors.search_enabled',
-    'saleor.site.context_processors.site',
+#    'saleor.site.context_processors.site',
     'saleor.core.context_processors.webpage_schema',
-    'social_django.context_processors.backends',
-    'social_django.context_processors.login_redirect',
+#    'social_django.context_processors.backends',
+#    'social_django.context_processors.login_redirect',
 ]
 
 loaders = [
@@ -140,8 +143,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.sitemaps',
-    'django.contrib.sites',
+#    'django.contrib.sitemaps',
+#    'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.auth',
     'django.contrib.postgres',
@@ -156,7 +159,7 @@ INSTALLED_APPS = [
     'saleor.order',
     'saleor.dashboard',
     'saleor.search',
-    'saleor.site',
+#    'saleor.site',
 
     # External apps
     'versatileimagefield',
