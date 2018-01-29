@@ -131,7 +131,7 @@ def category_index(request, path, category_id):
         return redirect('product:category', permanent=True, path=actual_path,
                         category_id=category_id)
     products = (products_with_details(user=request.user)
-                .filter(categories__id=category.id)
+                .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))
 
     ret_products = []
