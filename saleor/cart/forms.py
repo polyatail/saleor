@@ -6,6 +6,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist
 from django.utils.translation import npgettext_lazy, pgettext_lazy
 from satchless.item import InsufficientStock
 
+from ..cart.models import CartUserFieldEntry
 
 class QuantityField(forms.IntegerField):
     """A specialized integer field with initial quantity and min/max values."""
@@ -22,9 +23,30 @@ class UpdateUserFields(forms.Form):
         self.cart = kwargs.pop('cart')
         super(UpdateUserFields, self).__init__(*args, **kwargs)
 
+        if self.data:
+          self.data = self.data.POST
+
         for uf in self.userfields:
           self.fields[slugify(uf.name).replace("-", "_")] = forms.CharField(label=uf.name, max_length=128)
           self.fields[slugify(uf.name).replace("-", "_")].description = uf.description
+
+    def load_defaults(self, ufes):
+      for uf in self.userfields:
+        for ufe in ufes:
+          if uf.pk == ufe.userfield_id:
+            self.fields[slugify(uf.name).replace("-", "_")].value = ufe.data
+            break
+        else:
+          self.fields[slugify(uf.name).replace("-", "_")].value = ''
+
+    def save(self):
+      for uf in self.userfields:
+        # create filled userfieldentry then save it
+        ufe, created = CartUserFieldEntry.objects.update_or_create(
+                         cart=self.cart,
+                         userfield=uf,
+                         data=self.cleaned_data.get(slugify(uf.name).replace("-", "_")))
+
 
 class AddToCartForm(forms.Form):
     """Add-to-cart form.

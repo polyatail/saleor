@@ -23,26 +23,32 @@
 
 <div class="alert alert-info">
   {% if message_to_users %}
-    <h2>Important Message</h2>
+    <h2>Notice</h2>
     <hr>
     {{ message_to_users|linebreaks }}
   {% endif %}
 
   <br>
-  <h2>Fill this fucking shit out for us will ya?</h2>
+  <h2>Please provide the following information</h2>
   <hr>
 
   <div class="row">
-    <div class="col-6">
-      <form method="post" class="form-cart" novalidate>
+    <div class="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5">
+      <form method="post" class="form-cart" 
+             action="{% url 'product:update-userfields' %}" novalidate>
       {% csrf_token %}
 
       {% for slug, field in uf_form.fields.items %}
         <div class="form-group">
           <label class="control-label"><h3>{{ field.label }}</h3><p>{{ field.description }}</p></label>
-          <input class="form-control" name="{{ slug }}" type="text" maxlength={{ field.max_length }}>
+          <input class="form-control" name="{{ slug }}" type="text" maxlength={{ field.max_length }} value="{{ field.value }}">
         </div>
       {% endfor %}
+
+      <div class="form-group">
+        <center><button class="btn btn-primary">Save Changes</button></center>
+      </div>
+
       </form>
     </div>
   </div>

@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
 from ..cart.forms import UpdateUserFields
+from ..cart.models import CartUserFieldEntry
 from ..order.models import OrderUserFieldEntry
 from ..cart.utils import set_cart_cookie
 from ..core.utils import get_paginator_items, serialize_decimal
@@ -19,7 +20,7 @@ from .utils import (
     get_availability, get_product_attributes_data, get_product_images,
     get_variant_picker_data, handle_cart_form, product_json_ld,
     products_for_cart, products_with_availability, products_with_details,
-    get_cart_from_request)
+    get_or_create_cart_from_request)
 
 @login_required
 def product_details(request, slug, product_id, form=None):
@@ -119,8 +120,7 @@ def product_add_to_cart(request, slug, product_id):
             response = JsonResponse({'error': form.errors}, status=400)
         else:
             response = product_details(request, slug, product_id, form)
-    if not request.user.is_authenticated:
-        set_cart_cookie(cart, response)
+
     return response
 
 @login_required
@@ -136,10 +136,13 @@ def category_index(request, path, category_id):
                 .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))
 
-    cart = get_cart_from_request(request)
+    cart = get_or_create_cart_from_request(request)
 
     userfields = UserField.objects.filter(company_id=category_id)
+    uf_entries = CartUserFieldEntry.objects.filter(cart=cart)
     userfield_form = UpdateUserFields(cart=cart, userfields=userfields)
+    userfield_form.load_defaults(uf_entries)
+
 
     ret_products = []
 
@@ -160,3 +163,14 @@ def category_index(request, path, category_id):
           }
 
     return TemplateResponse(request, 'category/index.html', ctx)
+
+@login_required
+def update_userfields(request):
+    cart = get_or_create_cart_from_request(request)
+    userfields = UserField.objects.filter(company_id=request.user.company.id)
+    form = UpdateUserFields(request, cart=cart, userfields=userfields)
+
+    if form.is_valid():
+      form.save()
+
+    return redirect('home', permanent=True)

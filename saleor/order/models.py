@@ -148,4 +148,4 @@ class OrderUserFieldEntry(models.Model):
     data = models.CharField("Submitted Data", max_length=128)
 
     class Meta:
-        unique_together = ('order', 'userfield', 'data')
+        unique_together = ('order', 'userfield')
