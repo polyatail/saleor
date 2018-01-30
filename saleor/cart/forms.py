@@ -1,4 +1,5 @@
 """Cart-related forms and fields."""
+from django.utils.text import slugify
 from django import forms
 from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist
@@ -14,6 +15,16 @@ class QuantityField(forms.IntegerField):
             min_value=0, max_value=settings.MAX_CART_LINE_QUANTITY,
             initial=1, **kwargs)
 
+
+class UpdateUserFields(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.userfields = kwargs.pop('userfields')
+        self.cart = kwargs.pop('cart')
+        super(UpdateUserFields, self).__init__(*args, **kwargs)
+
+        for uf in self.userfields:
+          self.fields[slugify(uf.name).replace("-", "_")] = forms.CharField(label=uf.name, max_length=128)
+          self.fields[slugify(uf.name).replace("-", "_")].description = uf.description
 
 class AddToCartForm(forms.Form):
     """Add-to-cart form.

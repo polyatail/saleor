@@ -12,7 +12,7 @@ from satchless.item import ItemLine, ItemSet
 
 from . import OrderStatus, emails
 from ..core.utils import build_absolute_uri
-from ..product.models import Product, CompanyField
+from ..product.models import Product, UserField
 
 
 class Order(models.Model, ItemSet):
@@ -139,9 +139,13 @@ class OrderNote(models.Model):
             'Order note str',
             'OrderNote for Order #%d' % self.order.pk)
 
-class OrderCompanyField(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    company_field = models.ForeignKey(CompanyField, on_delete=models.CASCADE)
-    value = models.CharField("User Value", max_length=128)
 
+class OrderUserFieldEntry(models.Model):
+    order = models.ForeignKey(
+        Order, related_name='userfields',
+        on_delete=models.CASCADE)
+    userfield = models.ForeignKey(UserField, on_delete=models.CASCADE)
+    data = models.CharField("Submitted Data", max_length=128)
 
+    class Meta:
+        unique_together = ('order', 'userfield', 'data')

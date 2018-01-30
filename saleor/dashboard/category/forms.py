@@ -4,7 +4,7 @@ from django.utils.translation import pgettext_lazy
 from django.utils.text import slugify
 from text_unidecode import unidecode
 
-from ...product.models import Category
+from ...product.models import Category, UserField
 
 
 class CategoryForm(forms.ModelForm):
@@ -22,4 +22,16 @@ class CategoryForm(forms.ModelForm):
             self.instance.parent = get_object_or_404(
                 Category, pk=self.parent_pk)
         super(CategoryForm, self).save(commit=commit)
+        return self.instance
+
+class UserFieldForm(forms.ModelForm):
+    class Meta:
+        model = UserField
+        fields = ['name', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super(UserFieldForm, self).__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        super(UserFieldForm, self).save(commit=commit)
         return self.instance

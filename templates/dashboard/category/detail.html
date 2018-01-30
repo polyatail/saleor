@@ -117,23 +117,23 @@
           <table class="bordered highlight responsive data-table">
             <thead>
               <tr>
-                <th>{% trans "Display name" %}</th>
+                <th>Name</th>
+                <th>Description</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {% for value in userfields.values.all %}
+              {% for value in userfields %}
                 <tr>
                   <td>
                     {{ value.name }}
                   </td>
+                  <td>
+                    {{ value.description|truncatechars:32 }}
+                  </td>
                   <td class="right-align">
-                    <a href="{% url 'dashboard:category-userfield-edit' company_pk=root.pk userfield_pk=value.pk %}" class="btn-flat waves-effect">
-                      {% trans 'Edit' context 'Attribute choice value edit action' %}
-                    </a>
-                    <a class="btn-flat waves-effect modal-trigger-custom" href="#base-modal" data-href="{% url 'dashboard:category-userfield-delete' company_pk=root.pk userfield_pk=value.pk %}">
-                      {% trans 'Remove' context 'Attribute choice value edit action' %}
-                    </a>
+                    <a href="{% url 'dashboard:category-userfield-edit' company_pk=root.pk userfield_pk=value.pk %}" class="btn-flat waves-effect">Edit</a>
+                    <a class="btn-flat waves-effect modal-trigger-custom" href="#base-modal" data-href="{% url 'dashboard:category-userfield-delete' company_pk=root.pk userfield_pk=value.pk %}">Remove</a>
                   </td>
                 </tr>
               {% endfor %}

@@ -44,11 +44,6 @@ class Category(MPTTModel):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self, ancestors=None):
-        return reverse('products',
-                       kwargs={'path': self.get_full_path(ancestors),
-                               'category_id': self.id})
-
     def get_full_path(self, ancestors=None):
         if not self.parent_id:
             return self.slug
@@ -57,7 +52,7 @@ class Category(MPTTModel):
         nodes = [node for node in ancestors] + [self]
         return '/'.join([node.slug for node in nodes])
 
-class CompanyField(models.Model):
+class UserField(models.Model):
     name = models.CharField("Name", max_length=128)
     description = models.TextField("Description", blank=True)
     company = models.ForeignKey(Category, on_delete=models.CASCADE)

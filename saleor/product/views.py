@@ -8,15 +8,18 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
+from ..cart.forms import UpdateUserFields
+from ..order.models import OrderUserFieldEntry
 from ..cart.utils import set_cart_cookie
 from ..core.utils import get_paginator_items, serialize_decimal
 from ..core.utils.filters import get_now_sorted_by, get_sort_by_choices
 from .filters import ProductFilter, SORT_BY_FIELDS
-from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant, CompanyField
+from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant, UserField
 from .utils import (
     get_availability, get_product_attributes_data, get_product_images,
     get_variant_picker_data, handle_cart_form, product_json_ld,
-    products_for_cart, products_with_availability, products_with_details)
+    products_for_cart, products_with_availability, products_with_details,
+    get_cart_from_request)
 
 @login_required
 def product_details(request, slug, product_id, form=None):
@@ -133,7 +136,10 @@ def category_index(request, path, category_id):
                 .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))
 
-    userfields = CompanyField.objects.filter(company_id=category.id)
+    cart = get_cart_from_request(request)
+
+    userfields = UserField.objects.filter(company_id=category_id)
+    userfield_form = UpdateUserFields(cart=cart, userfields=userfields)
 
     ret_products = []
 
@@ -150,6 +156,7 @@ def category_index(request, path, category_id):
     ctx = {"category": category.name,
            "products": ret_products,
            "message_to_users": message_to_users,
-           "userfields": userfields}
+           "uf_form": userfield_form,
+          }
 
     return TemplateResponse(request, 'category/index.html', ctx)

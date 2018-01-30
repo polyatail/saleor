@@ -11,6 +11,7 @@ from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
 from jsonfield import JSONField
 from satchless.item import ItemLine, ItemList, partition
+from ..product.models import UserField
 
 from . import CartStatus, logger
 
@@ -247,3 +248,18 @@ class CartLine(models.Model, ItemLine):
     def get_quantity(self, **kwargs):
         """Return the line's quantity."""
         return self.quantity
+
+
+
+class CartUserFieldEntry(models.Model):
+    cart = models.ForeignKey(
+        Cart, related_name='userfields',
+        verbose_name=pgettext_lazy('Cart line field', 'cart'),
+        on_delete=models.CASCADE)
+    userfield = models.ForeignKey(UserField, on_delete=models.CASCADE)
+    data = models.CharField("Submitted Data", max_length=128)
+
+    class Meta:
+        unique_together = ('cart', 'userfield', 'data')
+
+

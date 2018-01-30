@@ -3,6 +3,7 @@
 {% load bootstrap_field from bootstrap3 %}
 {% load staticfiles %}
 {% load get_thumbnail from product_images %}
+{% load materializecss %}
 
 {% block footer_scripts %}
   {{ block.super }}
@@ -20,11 +21,33 @@
 
 {% block content %}
 
-{% if message_to_users %}
 <div class="alert alert-info">
-{{ message_to_users|linebreaks }}
+  {% if message_to_users %}
+    <h2>Important Message</h2>
+    <hr>
+    {{ message_to_users|linebreaks }}
+  {% endif %}
+
+  <hr>
+  <h2>Fill this fucking shit out for us will ya?</h2>
+  <hr>
+
+  <div class="row">
+    <div class="col-6">
+      <form method="post" class="form-cart" novalidate>
+      {% csrf_token %}
+
+      {% for slug, field in uf_form.fields.items %}
+        <div class="form-group">
+          <label class="control-label"><h3>{{ field.label }}</h3><p>{{ field.description }}</p></label>
+          <input class="form-control" name="{{ slug }}" type="text" maxlength={{ field.max_length }}>
+        </div>
+      {% endfor %}
+      </form>
+    </div>
+  </div>
 </div>
-{% endif %}
+
 
 <div class="container-fluid" id="rows_of_items">
 {% for proddata in products %}
