@@ -11,8 +11,6 @@ from django.utils.translation import pgettext_lazy
 from . import CartStatus
 from .models import Cart
 
-COOKIE_NAME = 'cart'
-
 
 def set_cart_cookie(simple_cart, response):
     """Update respons with a cart token cookie."""
@@ -123,48 +121,22 @@ def find_and_assign_anonymous_cart(queryset=Cart.objects.all()):
     return get_cart
 
 
-def get_or_create_anonymous_cart_from_token(
-        token, cart_queryset=Cart.objects.all()):
-    """Return an open unassigned cart with given token or create a new one."""
-    return cart_queryset.open().filter(token=token, user=None).get_or_create(
-        defaults={'user': None})[0]
-
-
-def get_or_create_user_cart(user, cart_queryset=Cart.objects.all()):
+def get_or_create_user_cart(user, request, cart_queryset=Cart.objects.all()):
     """Return an open cart for given user or create a new one."""
-    return cart_queryset.open().get_or_create(user=user)[0]
+    if not user.is_authenticated():
+      return None
+
+    import pdb; pdb.set_trace()
+
+    return cart_queryset.open().get_or_create(user=user, token=request.session['cart_token'])[0]
 
 
-def get_anonymous_cart_from_token(token, cart_queryset=Cart.objects.all()):
-    """Return an open unassigned cart with given token if any."""
-    return cart_queryset.open().filter(token=token, user=None).first()
+def get_user_cart(user, request, cart_queryset=Cart.objects.all()):
+    """Return an open cart for given user if any.""" 
+    if not user.is_authenticated():
+      return None
 
-
-def get_user_cart(user, cart_queryset=Cart.objects.all()):
-    """Return an open cart for given user if any."""
-    return cart_queryset.open().filter(user=user).first()
-
-
-def get_or_create_cart_from_request(request, cart_queryset=Cart.objects.all()):
-    """Fetch cart from database or create a new one based on cookie."""
-    if request.user.is_authenticated:
-        return get_or_create_user_cart(request.user, cart_queryset)
-    token = request.get_signed_cookie(COOKIE_NAME, default=None)
-    return get_or_create_anonymous_cart_from_token(token, cart_queryset)
-
-
-def get_cart_from_request(request, cart_queryset=Cart.objects.all()):
-    """Fetch cart from database or return a new instance based on cookie."""
-    if request.user.is_authenticated:
-        cart = get_user_cart(request.user, cart_queryset)
-        user = request.user
-    else:
-        token = request.get_signed_cookie(COOKIE_NAME, default=None)
-        cart = get_anonymous_cart_from_token(token, cart_queryset)
-        user = None
-    if cart is not None:
-        return cart
-    return Cart(user=user)
+    return cart_queryset.open().filter(user=user, token=request.session['cart_token']).first()
 
 
 def get_or_create_db_cart(cart_queryset=Cart.objects.all()):
@@ -180,7 +152,7 @@ def get_or_create_db_cart(cart_queryset=Cart.objects.all()):
     def get_cart(view):
         @wraps(view)
         def func(request, *args, **kwargs):
-            cart = get_or_create_cart_from_request(request, cart_queryset)
+            cart = get_or_create_user_cart(request.user, request, cart_queryset)
             response = view(request, cart, *args, **kwargs)
             if not request.user.is_authenticated:
                 set_cart_cookie(cart, response)
@@ -201,7 +173,7 @@ def get_or_empty_db_cart(cart_queryset=Cart.objects.all()):
     def get_cart(view):
         @wraps(view)
         def func(request, *args, **kwargs):
-            cart = get_cart_from_request(request, cart_queryset)
+            cart = get_user_cart(request.user, request, cart_queryset)
             return view(request, cart, *args, **kwargs)
         return func
     return get_cart

@@ -20,7 +20,7 @@ from .utils import (
     get_availability, get_product_attributes_data, get_product_images,
     get_variant_picker_data, handle_cart_form, product_json_ld,
     products_for_cart, products_with_availability, products_with_details,
-    get_or_create_cart_from_request)
+    get_or_create_user_cart)
 
 @login_required
 def product_details(request, slug, product_id, form=None):
@@ -136,7 +136,7 @@ def category_index(request, path, category_id):
                 .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))
 
-    cart = get_or_create_cart_from_request(request)
+    cart = get_or_create_user_cart(request.user, request)
 
     userfields = UserField.objects.filter(company_id=category_id)
     uf_entries = CartUserFieldEntry.objects.filter(cart=cart)
@@ -166,7 +166,7 @@ def category_index(request, path, category_id):
 
 @login_required
 def update_userfields(request):
-    cart = get_or_create_cart_from_request(request)
+    cart = get_or_create_user(request.user, request)
     userfields = UserField.objects.filter(company_id=request.user.company.id)
     form = UpdateUserFields(request, cart=cart, userfields=userfields)
 

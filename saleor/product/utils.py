@@ -6,7 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.utils.encoding import smart_text
 
 from . import ProductAvailabilityStatus, VariantAvailabilityStatus
-from ..cart.utils import get_cart_from_request, get_or_create_cart_from_request
+from ..cart.utils import get_user_cart, get_or_create_user_cart
 from .forms import ProductForm
 
 
@@ -58,9 +58,9 @@ def get_availability(product):
 
 def handle_cart_form(request, product, create_cart=False):
     if create_cart:
-        cart = get_or_create_cart_from_request(request)
+        cart = get_or_create_user_cart(request.user, request)
     else:
-        cart = get_cart_from_request(request)
+        cart = get_user_cart(request.user, request)
     form = ProductForm(
         cart=cart, product=product, data=request.POST or None)
     return form, cart
