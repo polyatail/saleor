@@ -14,5 +14,13 @@ urlpatterns = [
     url(r'^(?P<root_pk>[0-9]+)/edit/$',
         views.category_edit, name='category-edit'),
     url(r'^(?P<pk>[0-9]+)/delete/$',
-        views.category_delete, name='category-delete')
+        views.category_delete, name='category-delete'),
+
+    # views for company-specific fields
+    url(r'^(?P<company_pk>[0-9]+)/userfield/add$',
+        views.userfield_add, name='category-userfield-add'),
+    url(r'^(?P<company_pk>[0-9]+)/userfield/(?P<userfield_pk>[0-9]+)/edit$',
+        views.userfield_edit, name='category-userfield-edit'),
+    url(r'^(?P<company_pk>[0-9]+)/userfield/(?P<userfield_pk>[0-9]+)/delete$',
+        views.userfield_delete, name='category-userfield-delete'),
 ]

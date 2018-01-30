@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.translation import pgettext_lazy
 
 from ...core.utils import get_paginator_items
-from ...product.models import Category
+from ...product.models import Category, CompanyField
 from ..views import staff_member_required
 from .filters import CategoryFilter
 from .forms import CategoryForm
@@ -82,8 +82,10 @@ def category_detail(request, pk):
     categories = get_paginator_items(
         category_filter.qs, settings.DASHBOARD_PAGINATE_BY,
         request.GET.get('page'))
+    userfields = CompanyField.objects.filter(company_id=pk)
+
     ctx = {'categories': categories, 'path': path, 'root': root,
-           'filter': category_filter}
+           'filter': category_filter, 'userfields': userfields}
     return TemplateResponse(request, 'dashboard/category/detail.html', ctx)
 
 
@@ -115,3 +117,20 @@ def category_delete(request, pk):
            'products_count': len(category.products.all())}
     return TemplateResponse(
         request, 'dashboard/category/modal/confirm_delete.html', ctx)
+
+@staff_member_required
+def userfield_add(request, company_pk):
+    pass
+
+
+@staff_member_required
+def userfield_edit(request, company_pk, userfield_pk):
+    pass
+
+
+@staff_member_required
+def userfield_delete(request, company_pk, userfield_pk):
+    pass
+
+
+

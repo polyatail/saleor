@@ -12,7 +12,7 @@ from satchless.item import ItemLine, ItemSet
 
 from . import OrderStatus, emails
 from ..core.utils import build_absolute_uri
-from ..product.models import Product
+from ..product.models import Product, CompanyField
 
 
 class Order(models.Model, ItemSet):
@@ -138,3 +138,10 @@ class OrderNote(models.Model):
         return pgettext_lazy(
             'Order note str',
             'OrderNote for Order #%d' % self.order.pk)
+
+class OrderCompanyField(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    company_field = models.ForeignKey(CompanyField, on_delete=models.CASCADE)
+    value = models.CharField("User Value", max_length=128)
+
+

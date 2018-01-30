@@ -57,6 +57,11 @@ class Category(MPTTModel):
         nodes = [node for node in ancestors] + [self]
         return '/'.join([node.slug for node in nodes])
 
+class CompanyField(models.Model):
+    name = models.CharField("Name", max_length=128)
+    description = models.TextField("Description", blank=True)
+    company = models.ForeignKey(Category, on_delete=models.CASCADE)
+
 
 class ProductClass(models.Model):
     name = models.CharField(

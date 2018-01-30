@@ -12,7 +12,7 @@ from ..cart.utils import set_cart_cookie
 from ..core.utils import get_paginator_items, serialize_decimal
 from ..core.utils.filters import get_now_sorted_by, get_sort_by_choices
 from .filters import ProductFilter, SORT_BY_FIELDS
-from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant
+from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant, CompanyField
 from .utils import (
     get_availability, get_product_attributes_data, get_product_images,
     get_variant_picker_data, handle_cart_form, product_json_ld,
@@ -133,6 +133,8 @@ def category_index(request, path, category_id):
                 .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))
 
+    userfields = CompanyField.objects.filter(company_id=category.id)
+
     ret_products = []
 
     if request.user.company.description:
@@ -147,6 +149,7 @@ def category_index(request, path, category_id):
 
     ctx = {"category": category.name,
            "products": ret_products,
-           "message_to_users": message_to_users}
+           "message_to_users": message_to_users,
+           "userfields": userfields}
 
     return TemplateResponse(request, 'category/index.html', ctx)
