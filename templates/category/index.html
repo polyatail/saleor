@@ -20,6 +20,12 @@
 
 {% block content %}
 
+{% if message_to_users %}
+<div class="alert alert-info">
+{{ message_to_users|linebreaks }}
+</div>
+{% endif %}
+
 <div class="container-fluid" id="rows_of_items">
 {% for proddata in products %}
 

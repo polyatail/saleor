@@ -135,12 +135,18 @@ def category_index(request, path, category_id):
 
     ret_products = []
 
+    if request.user.company.description:
+      message_to_users = request.user.company.description
+    else:
+      message_to_users = False
+
     for p_num, p in enumerate(products):
       p_deets = product_details(request, p.get_slug(), p.id)
       p_deets["index"] = p_num
       ret_products.append(p_deets)
 
     ctx = {"category": category.name,
-           "products": ret_products}
+           "products": ret_products,
+           "message_to_users": message_to_users}
 
     return TemplateResponse(request, 'category/index.html', ctx)
