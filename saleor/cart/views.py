@@ -8,8 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import ReplaceCartLineForm
 from ..product.models import ProductVariant
 from .models import Cart
-from .utils import (
-    check_product_availability_and_warn, get_or_empty_db_cart)
+from .utils import get_or_empty_db_cart
 
 
 @login_required
@@ -17,7 +16,6 @@ from .utils import (
 def index(request, cart):
     """Display cart details."""
     cart_lines = []
-    check_product_availability_and_warn(request, cart)
 
     # refresh required to get updated cart lines and it's quantity
     try:

@@ -11,15 +11,12 @@ from django.contrib.auth.decorators import login_required
 from ..cart.forms import UpdateUserFields
 from ..cart.models import CartUserFieldEntry
 from ..order.models import OrderUserFieldEntry
-from ..cart.utils import set_cart_cookie
-from ..core.utils import get_paginator_items, serialize_decimal
-from ..core.utils.filters import get_now_sorted_by, get_sort_by_choices
-from .filters import ProductFilter, SORT_BY_FIELDS
+from ..core.utils import serialize_decimal
 from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant, UserField
 from .utils import (
-    get_availability, get_product_attributes_data, get_product_images,
+    get_product_attributes_data, get_product_images,
     get_variant_picker_data, handle_cart_form, product_json_ld,
-    products_for_cart, products_with_availability, products_with_details,
+    products_for_cart, products_with_details,
     get_or_create_user_cart)
 
 @login_required
@@ -53,14 +50,13 @@ def product_details(request, slug, product_id, form=None):
     is_visible = True
     if form is None:
         form = handle_cart_form(request, product, create_cart=False)[0]
-    availability = get_availability(product)
     product_images = get_product_images(product)
     variant_picker_data = get_variant_picker_data(product)
     product_attributes = get_product_attributes_data(product)
     show_variant_picker = all([v.attributes for v in product.variants.all()])
 #    show_variant_picker = [v.attributes for v in product.variants.all()]
 #    show_variant_picker = True if all(show_variant_picker) and show_variant_picker else False
-    json_ld_data = product_json_ld(product, availability, product_attributes)
+    json_ld_data = product_json_ld(product, product_attributes)
 
 #    # figure out the appropriate variant image
 #    variant_finder = {}
@@ -86,7 +82,6 @@ def product_details(request, slug, product_id, form=None):
 
     return ({'is_visible': is_visible,
            'form': form,
-           'availability': availability,
            'product': product,
            'slug': product.get_slug(),
            'image_count': range(len(product_images)),
