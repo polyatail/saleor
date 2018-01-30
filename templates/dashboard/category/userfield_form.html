@@ -1,0 +1,112 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% load materializecss %}
+{% load staticfiles %}
+
+{% block title %}
+  {% if userfield.pk %}
+    Edit - {{ userfield.name }}
+  {% else %}
+    Add new company-specific field
+  {% endif %}
+  - {{ block.super }}
+{% endblock %}
+
+{% block body_class %}body-categories{% endblock %}
+
+{% block menu_categories_class %}active{% endblock %}
+
+{% block header_menu %}
+  {% if root %}
+    {% if root.parent %}
+      {% url 'dashboard:category-detail' pk=root.parent.pk as url %}
+    {% else %}
+      {% url 'dashboard:category-list' as url %}
+    {% endif %}
+    {% include "dashboard/includes/_back-link.html" with url=url %}
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumbs breadcrumbs--history">
+    {% if path %}
+      <li>
+        <a href="{% url 'dashboard:category-list' %}">Companies
+        </a>
+      </li>
+    {% else %}
+      <li class="visible-s">
+        <span>
+          {% trans "Categories" context "Dashboard categories list" %}
+        </span>
+      </li>
+    {% endif %}
+    {% if path %}
+      <li class="back-mobile">
+        <a href="{% url 'dashboard:category-list' %}">
+          <svg data-src="{% static 'dashboard/images/arrow_left.svg' %}" fill="#fff"
+               width="20px" height="20px"/>
+        </a>
+      </li>
+      {% for node in path %}
+        {% if forloop.last %}
+          <li title="{{ node.name }}">
+            <span class="breadcrumbs--ellipsed-item">
+              {{ node.name }}
+            </span>
+          </li>
+        {% else %}
+          <li class="hide-on-med-and-down">
+            <a title="{{ node.name }}"
+               href="{% url 'dashboard:category-detail' pk=node.pk %}"
+               class="breadcrumbs--ellipsed-item">
+              {{ node.name }}
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </ul>
+{% endblock %}
+
+{% block menu_catalogue_class %} active{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col m12 l9">
+      <div class="card">
+        <form method="post" enctype="multipart/form-data" id="form-attributes" novalidate>
+          <div class="card-content card-content-form">
+            {% csrf_token %}
+            <div class="row">
+              {{ form.name|materializecss }}
+            </div>
+            <div class="row">
+              {{ form.description|materializecss }}
+            </div>
+          </div>
+          <div class="card-action right-align">
+            {% if userfield.pk %}
+              <a href="{% url 'dashboard:category-detail' company_pk %}" class="btn-flat waves-effect">
+                {% trans "Cancel" context "Dashboard cancel action" %}
+              </a>
+              <button type="submit" class="btn waves-effect">
+                {% trans "Save" context "Dashboard update action" %}
+              </button>
+            {% else %}
+              <a href="{% url 'dashboard:category-detail' company_pk %}" class="btn-flat waves-effect">
+                {% trans "Cancel" context "Dashboard cancel action" %}
+              </a>
+              <button type="submit" class="btn waves-effect">
+                {% trans "Create" context "Dashboard create action" %}
+              </button>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col m12 l3 help-box"></div>
+  </div>
+{% endblock %}

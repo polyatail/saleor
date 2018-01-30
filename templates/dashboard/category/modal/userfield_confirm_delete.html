@@ -1,0 +1,21 @@
+{% extends "dashboard/base_modal.html" %}
+
+{% load i18n %}
+
+{% block form_class %}{% endblock %}
+
+{% block action_url %}
+{% url "dashboard:category-userfield-delete" company_pk=company_pk userfield_pk=userfield.pk %}
+{% endblock %}
+
+{% block title %}
+  Remove company-specific field {{ userfield.name }}
+{% endblock title %}
+
+{% block content %}
+  Are you sure you want to remove company-specific field <strong>{{ userfield.name }}</strong>?
+{% endblock content %}
+
+{% block primary_action %}
+Remove
+{% endblock %}
