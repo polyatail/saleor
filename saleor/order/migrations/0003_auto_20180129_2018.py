@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('product', '0004_auto_20180129_2018'),
-        ('order', '0002_ordercompanyfield'),
+        ('order', '0001_initial'),
     ]
 
     operations = [
@@ -22,17 +22,6 @@ class Migration(migrations.Migration):
                 ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='userfields', to='order.Order')),
                 ('userfield', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='product.UserField')),
             ],
-        ),
-        migrations.RemoveField(
-            model_name='ordercompanyfield',
-            name='company_field',
-        ),
-        migrations.RemoveField(
-            model_name='ordercompanyfield',
-            name='order',
-        ),
-        migrations.DeleteModel(
-            name='OrderCompanyField',
         ),
         migrations.AlterUniqueTogether(
             name='orderuserfieldentry',
