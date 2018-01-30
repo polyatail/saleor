@@ -83,9 +83,9 @@ class Cart(models.Model):
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='carts',
         verbose_name=pgettext_lazy('Cart field', 'user'),
         on_delete=models.CASCADE)
-    token = models.UUIDField(
+    token = models.CharField(
         pgettext_lazy('Cart field', 'token'),
-        primary_key=True, default=uuid4, editable=False)
+        primary_key=True, default=uuid4, editable=True, max_length=128)
     checkout_data = JSONField(
         verbose_name=pgettext_lazy('Cart field', 'checkout data'), null=True,
         editable=False,)

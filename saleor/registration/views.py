@@ -11,11 +11,6 @@ def login(request):
     kwargs = {
         'template_name': 'account/login.html', 'authentication_form': LoginForm}
 
-    if request.user.is_authenticated():
-      # create the cart_token for this session if not exists
-      if 'cart_token' not in request.session:
-        request.session['cart_token'] = request.get_signed_cookie(COOKIE_NAME, default=None)
-
     return django_views.LoginView.as_view(**kwargs)(request, **kwargs)
 
 

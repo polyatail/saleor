@@ -126,9 +126,7 @@ def get_or_create_user_cart(user, request, cart_queryset=Cart.objects.all()):
     if not user.is_authenticated():
       return None
 
-    import pdb; pdb.set_trace()
-
-    return cart_queryset.open().get_or_create(user=user, token=request.session['cart_token'])[0]
+    return cart_queryset.open().get_or_create(user=user, token=request.session.session_key)[0]
 
 
 def get_user_cart(user, request, cart_queryset=Cart.objects.all()):
@@ -136,7 +134,7 @@ def get_user_cart(user, request, cart_queryset=Cart.objects.all()):
     if not user.is_authenticated():
       return None
 
-    return cart_queryset.open().filter(user=user, token=request.session['cart_token']).first()
+    return cart_queryset.open().filter(user=user, token=request.session.session_key).first()
 
 
 def get_or_create_db_cart(cart_queryset=Cart.objects.all()):

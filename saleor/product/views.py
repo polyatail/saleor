@@ -166,7 +166,7 @@ def category_index(request, path, category_id):
 
 @login_required
 def update_userfields(request):
-    cart = get_or_create_user(request.user, request)
+    cart = get_or_create_user_cart(request.user, request)
     userfields = UserField.objects.filter(company_id=request.user.company.id)
     form = UpdateUserFields(request, cart=cart, userfields=userfields)
 
