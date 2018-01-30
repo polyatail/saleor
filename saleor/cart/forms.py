@@ -43,9 +43,11 @@ class UpdateUserFields(forms.Form):
       for uf in self.userfields:
         # create filled userfieldentry then save it
         ufe, created = CartUserFieldEntry.objects.update_or_create(
-                         cart=self.cart,
-                         userfield=uf,
-                         data=self.cleaned_data.get(slugify(uf.name).replace("-", "_")))
+                         cart_id=self.cart.pk,
+                         userfield_id=uf.pk)
+
+        ufe.data=self.cleaned_data.get(slugify(uf.name).replace("-", "_"))
+        ufe.save()
 
 
 class AddToCartForm(forms.Form):

@@ -85,7 +85,7 @@ class Cart(models.Model):
         on_delete=models.CASCADE)
     token = models.CharField(
         pgettext_lazy('Cart field', 'token'),
-        primary_key=True, default=uuid4, editable=True, max_length=128)
+        editable=True, max_length=128)
     checkout_data = JSONField(
         verbose_name=pgettext_lazy('Cart field', 'checkout data'), null=True,
         editable=False,)
