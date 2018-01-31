@@ -34,9 +34,11 @@
 
   <div class="row">
     <div class="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5">
-      <form method="post" class="form-cart" 
+      <form method="post" class="form-cart"
+             id="place-order" 
              action="{% url 'product:update-userfields' %}" novalidate>
       {% csrf_token %}
+      <input id="checkout-now" name="checkout_now" type="hidden" value=0>
 
       {% for slug, field in uf_form.fields.items %}
         <div class="form-group">
@@ -138,4 +140,11 @@
 {% endfor %}
 </div>
 
+</br></br>
+
+<div class="text-center">
+  <button id="place-order-button" class="btn primary" style="padding: 40px 40px; font-size: 50px">PLACE ORDER</button>
+</div>
+
+</br></br>
 {% endblock content %}

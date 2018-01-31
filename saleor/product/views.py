@@ -168,4 +168,8 @@ def update_userfields(request):
     if form.is_valid():
       form.save()
 
+      if form.cleaned_data['checkout_now']:
+        # checkout instead of returning to home page
+        return redirect('cart:checkout', permanent=True)
+
     return redirect('home', permanent=True)

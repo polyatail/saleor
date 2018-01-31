@@ -30,6 +30,18 @@ class UpdateUserFields(forms.Form):
           self.fields[slugify(uf.name).replace("-", "_")] = forms.CharField(label=uf.name, max_length=128)
           self.fields[slugify(uf.name).replace("-", "_")].description = uf.description
 
+    def clean(self):
+        cleaned_data = super(UpdateUserFields, self).clean()
+
+        if self.data.get('checkout_now') == '0':
+          cleaned_data['checkout_now'] = False
+        elif self.data.get('checkout_now') == '1':
+          cleaned_data['checkout_now'] = True
+        else:
+          cleaned_data['checkout_now'] = None
+
+        return cleaned_data
+
     def load_defaults(self, ufes):
       for uf in self.userfields:
         for ufe in ufes:

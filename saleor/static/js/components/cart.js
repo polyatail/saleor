@@ -152,3 +152,4 @@ export default $(document).ready((e) => {
     $.cookie('alert', 'false', {path: '/cart'});
   }
 });
+
