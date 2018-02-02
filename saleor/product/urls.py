@@ -4,7 +4,7 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^(?P<path>[a-z0-9-_/]+?)-(?P<category_id>[0-9]+)/$',
+    url(r'^$',
         views.category_index, name='category'),
     url(r'^update/$',
         views.update_userfields, name='update-userfields'),

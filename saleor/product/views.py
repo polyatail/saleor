@@ -120,14 +120,10 @@ def product_add_to_cart(request, slug, product_id):
     return response
 
 @login_required
-def category_index(request, path, category_id):
+def category_index(request):
     category_id = request.user.company.id
 
     category = get_object_or_404(Category, id=category_id)
-    actual_path = category.get_full_path()
-    if actual_path != path:
-        return redirect('product:category', permanent=True, path=actual_path,
-                        category_id=category_id)
     products = (products_with_details(user=request.user)
                 .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))

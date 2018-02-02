@@ -44,9 +44,6 @@
             <a href="#base-modal" data-href="{% url 'dashboard:product-delete' pk=product.pk %}" class="modal-trigger-custom btn-flat waves-effect">
                 {% trans "Remove product" context "Product action" %}
             </a>
-          <a href="{{ product.get_absolute_url }}" target="_blank" class="btn-flat waves-effect">
-            {% trans "View on site" context "Product action" %}
-          </a>
         </div>
       </div>
       {% if not no_variants %}
