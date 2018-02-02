@@ -1,13 +1,16 @@
 """Cart-related views."""
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib import auth, messages
 
 from .forms import ReplaceCartLineForm
+from ..order.models import Order, OrderLine, OrderUserFieldEntry
 from ..product.models import ProductVariant
-from .models import Cart
+from .models import Cart, CartUserFieldEntry
 from .utils import get_or_empty_db_cart
 
 
@@ -93,4 +96,34 @@ def summary(request, cart):
 @login_required
 @get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
 def checkout(request, cart):
-    return render(request, 'order-confirmation.html')
+    # make sure this cart hasn't already been submit
+    if Order.objects.filter(token=cart.token):
+        raise ValueError("Cart has already been submit")
+
+    order_data = {'user': request.user,
+                  'token': cart.token}
+
+    order = Order.objects.create(**order_data)
+
+    # iterate through all the items in the cart and create order lines
+    for l in cart.lines.all():
+        ol_data = {'product_name': l.variant.product.name,
+                   'product_sku': l.variant.sku,
+                   'quantity': l.quantity,
+                   'product_id': l.variant.product.id,
+                   'order_id': order.id}
+
+        ol = OrderLine.objects.create(**ol_data)
+
+    # iterate through all cart userfields and create order userfields
+    for c_ufe in CartUserFieldEntry.objects.filter(cart=cart):
+        o_ufe_data = {'order': order,
+                      'userfield': c_ufe.userfield,
+                      'data': c_ufe.data}
+
+        o_ufe = OrderUserFieldEntry.objects.create(**o_ufe_data)
+
+    # log the user out and display a confirmation page
+    auth.logout(request)
+    messages.success(request, ('Your order has been successfully placed!\n\nYour order number is %s' % (order.id,)))
+    return redirect(settings.LOGIN_REDIRECT_URL)

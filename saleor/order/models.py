@@ -2,16 +2,13 @@ from decimal import Decimal
 from uuid import uuid4
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
 from satchless.item import ItemLine, ItemSet
 
-from . import OrderStatus, emails
-from ..core.utils import build_absolute_uri
+from . import OrderStatus
 from ..product.models import Product, UserField
 
 
@@ -29,19 +26,11 @@ class Order(models.Model, ItemSet):
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='orders',
         verbose_name=pgettext_lazy('Order field', 'user'),
         on_delete=models.SET_NULL)
-    tracking_client_id = models.CharField(
-        pgettext_lazy('Order field', 'tracking client id'),
-        max_length=36, blank=True, editable=False)
     token = models.CharField(
         pgettext_lazy('Order field', 'token'), max_length=36, unique=True)
 
     class Meta:
         ordering = ('-last_status_change',)
-        permissions = (
-            ('view_order',
-             pgettext_lazy('Permission description', 'Can view orders')),
-            ('edit_order',
-             pgettext_lazy('Permission description', 'Can edit orders')))
 
     def save(self, *args, **kwargs):
         if not self.token:
@@ -51,9 +40,6 @@ class Order(models.Model, ItemSet):
     def get_lines(self):
         return OrderLine.objects.filter(order=self.id)
 
-    def get_user_current_email(self):
-        return self.user.email if self.user else self.user_email
-
     def __iter__(self):
         return iter(self.groups.all())
 
@@ -62,9 +48,6 @@ class Order(models.Model, ItemSet):
 
     def __str__(self):
         return '#%d' % (self.id, )
-
-    def get_absolute_url(self):
-        return reverse('order:details', kwargs={'token': self.token})
 
     def create_history_entry(self, comment='', status=None, user=None):
         if not status:
