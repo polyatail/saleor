@@ -7,13 +7,10 @@ from django.views.i18n import JavaScriptCatalog
 from graphene_django.views import GraphQLView
 
 from .cart.urls import urlpatterns as cart_urls
-from .core.sitemaps import sitemaps
 from .core.urls import urlpatterns as core_urls
 from .dashboard.urls import urlpatterns as dashboard_urls
-from .order.urls import urlpatterns as order_urls
 from .product.urls import urlpatterns as product_urls
 from .registration.urls import urlpatterns as registration_urls
-from .search.urls import urlpatterns as search_urls
 
 urlpatterns = [
     url(r'^', include(core_urls)),
