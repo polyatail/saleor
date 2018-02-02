@@ -105,6 +105,10 @@ def checkout(request, cart):
 
     order = Order.objects.create(**order_data)
 
+    order.create_history_entry(
+        status=OrderStatus.NEW, user=user, comment=pgettext_lazy(
+            'Order status history entry', 'Order was placed'))
+
     # iterate through all the items in the cart and create order lines
     for l in cart.lines.all():
         ol_data = {'product_name': l.variant.product.name,
