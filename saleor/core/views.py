@@ -10,8 +10,7 @@ from ..userprofile.models import User
 
 def home(request):
     if request.user.is_authenticated():
-        return redirect('product:category', permanent=True, path=request.user.company.get_full_path(),
-                        category_id=request.user.company.id)
+        return redirect('product:category', permanent=True)
     else:
       return HttpResponseRedirect("/account/login")
 
