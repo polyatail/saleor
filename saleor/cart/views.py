@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth, messages
 
 from .forms import ReplaceCartLineForm
-from ..order.models import Order, OrderLine, OrderUserFieldEntry
+from ..order.models import Order, OrderStatus, OrderLine, OrderUserFieldEntry
 from ..product.models import ProductVariant
 from .models import Cart, CartUserFieldEntry
 from .utils import get_or_empty_db_cart
@@ -97,8 +97,12 @@ def summary(request, cart):
 @get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
 def checkout(request, cart):
     # make sure this cart hasn't already been submit
-    if Order.objects.filter(token=cart.token):
-        raise ValueError("Cart has already been submit")
+    prev_order = Order.objects.filter(token=cart.token)
+
+    if prev_order:
+        auth.logout(request)
+        messages.success(request, ('This session has already checked out.\n\nOrder number was: %s.' % prev_order[0].id))
+        return redirect(settings.LOGIN_REDIRECT_URL)
 
     order_data = {'user': request.user,
                   'token': cart.token}
@@ -106,8 +110,7 @@ def checkout(request, cart):
     order = Order.objects.create(**order_data)
 
     order.create_history_entry(
-        status=OrderStatus.NEW, user=user, comment=pgettext_lazy(
-            'Order status history entry', 'Order was placed'))
+        status=OrderStatus.NEW, user=request.user, comment="Order was placed")
 
     # iterate through all the items in the cart and create order lines
     for l in cart.lines.all():
