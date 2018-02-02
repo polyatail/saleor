@@ -24,7 +24,23 @@
   </br></br>
   <div style="margin: auto; padding: 2rem; width: 25rem; border-radius: 4px; border: 1px solid #d3d1d0; background: #f2f2f2;">
     <h3>{% trans "Log in" context "Login form title" %}</h3><h3>&nbsp;</h3>
-        {% include "account/partials/login_form.html" %}
+<form method="post" action="{% url 'account_login' %}" novalidate>
+  {% csrf_token %}
+  <fieldset>
+    {% bootstrap_form form %}
+    {% if REDIRECT_FIELD_VALUE %}
+      <input type="hidden" name="{{ REDIRECT_FIELD_NAME }}"
+             value="{{ REDIRECT_FIELD_VALUE }}"/>
+    {% endif %}
+  </fieldset>
+  <div class="row login__btn-group">
+    <div class="col-sm-12">
+      <button class="btn primary narrow">
+        {% trans "Log in" context "Login form primary action" %}
+      </button>
+    </div>
+  </div>
+</form>
   </div>
 </div>
 </body>
