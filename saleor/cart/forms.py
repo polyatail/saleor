@@ -58,7 +58,11 @@ class UpdateUserFields(forms.Form):
                          cart_id=self.cart.pk,
                          userfield_id=uf.pk)
 
-        ufe.data=self.cleaned_data.get(slugify(uf.name).replace("-", "_"))
+        ufe.data = self.cleaned_data.get(slugify(uf.name).replace("-", "_"))
+
+        if not ufe.data:
+          ufe.data = ''
+
         ufe.save()
 
 

@@ -166,11 +166,11 @@ def update_userfields(request):
     userfields = UserField.objects.filter(company_id=request.user.company.id)
     form = UpdateUserFields(request, cart=cart, userfields=userfields)
 
-    if form.is_valid():
-      form.save()
+    form.full_clean()
+    form.save()
 
-      if form.cleaned_data['checkout_now']:
-        # checkout instead of returning to home page
-        return redirect('cart:cart-checkout', permanent=True)
+    if form.cleaned_data['checkout_now']:
+      # checkout instead of returning to home page
+      return redirect('cart:cart-checkout', permanent=True)
 
     return redirect('home', permanent=True)

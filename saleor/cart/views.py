@@ -125,5 +125,5 @@ def checkout(request, cart):
 
     # log the user out and display a confirmation page
     auth.logout(request)
-    messages.success(request, ('Your order has been successfully placed!\n\nYour order number is %s' % (order.id,)))
+    messages.success(request, ('Your order has been successfully placed!\n\nYour order number is %s.' % (order.id,)))
     return redirect(settings.LOGIN_REDIRECT_URL)

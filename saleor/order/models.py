@@ -128,7 +128,7 @@ class OrderUserFieldEntry(models.Model):
         Order, related_name='userfields',
         on_delete=models.CASCADE)
     userfield = models.ForeignKey(UserField, on_delete=models.CASCADE)
-    data = models.CharField("Submitted Data", max_length=128)
+    data = models.CharField("Submitted Data", max_length=128, default='')
 
     class Meta:
         unique_together = ('order', 'userfield')

@@ -257,7 +257,7 @@ class CartUserFieldEntry(models.Model):
         verbose_name=pgettext_lazy('Cart line field', 'cart'),
         on_delete=models.CASCADE)
     userfield = models.ForeignKey(UserField, on_delete=models.CASCADE)
-    data = models.CharField("Submitted Data", max_length=128)
+    data = models.CharField("Submitted Data", max_length=128, default='')
 
     class Meta:
         unique_together = ('cart', 'userfield')
