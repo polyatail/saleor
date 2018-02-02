@@ -89,3 +89,8 @@ def summary(request, cart):
             'lines': [prepare_line_data(line) for line in cart.lines.all()]}
 
     return render(request, 'cart-dropdown.html', data)
+
+@login_required
+@get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
+def checkout(request, cart):
+    return render(request, 'order-confirmation.html')

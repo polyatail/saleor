@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
+from ..cart.views import checkout
 from ..cart.forms import UpdateUserFields
 from ..cart.models import CartUserFieldEntry
 from ..order.models import OrderUserFieldEntry
@@ -170,6 +171,6 @@ def update_userfields(request):
 
       if form.cleaned_data['checkout_now']:
         # checkout instead of returning to home page
-        return redirect('cart:checkout', permanent=True)
+        return redirect('cart:cart-checkout', permanent=True)
 
     return redirect('home', permanent=True)
