@@ -9,21 +9,6 @@ from .models import Order, OrderLine
 from . import OrderStatus
 
 
-def check_order_status(func):
-    """Preserves execution of function if order is fully paid by redirecting
-    to order's details page."""
-    @wraps(func)
-    def decorator(*args, **kwargs):
-        token = kwargs.pop('token')
-        order = get_object_or_404(Order, token=token)
-        if order.is_fully_paid():
-            return redirect('order:details', token=order.token)
-        kwargs['order'] = order
-        return func(*args, **kwargs)
-
-    return decorator
-
-
 def cancel_order(order):
     """Cancells order by cancelling all associated shipment groups."""
     order.status = OrderStatus.CANCELLED

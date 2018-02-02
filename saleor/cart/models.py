@@ -19,16 +19,6 @@ CENTS = Decimal('0.01')
 SimpleCart = namedtuple('SimpleCart', ('quantity', 'total', 'token'))
 
 
-def find_open_cart_for_user(user):
-    """Find an open cart for the given user."""
-    carts = user.carts.open()
-    if len(carts) > 1:
-        logger.warning('%s has more than one open basket', user)
-        for cart in carts[1:]:
-            cart.change_status(CartStatus.CANCELED)
-    return carts.first()
-
-
 class CartQueryset(models.QuerySet):
     """A specialized queryset for dealing with carts."""
 
@@ -117,17 +107,6 @@ class Cart(models.Model):
             self.status = status
             self.last_status_change = now()
             self.save()
-
-    def change_user(self, user):
-        """Assign cart to a user.
-
-        If the user already has an open cart assigned, cancel it.
-        """
-        open_cart = find_open_cart_for_user(user)
-        if open_cart is not None:
-            open_cart.change_status(status=CartStatus.CANCELED)
-        self.user = user
-        self.save(update_fields=['user'])
 
     def __repr__(self):
         return 'Cart(quantity=%s)' % (self.quantity,)

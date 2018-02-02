@@ -6,16 +6,6 @@ from django.utils.translation import pgettext_lazy
 from .models import Cart
 
 
-def get_product_variants_and_prices(cart, product):
-    """Get variants and unit prices from cart lines matching the product."""
-    lines = (
-        cart_line for cart_line in cart.lines.all()
-        if cart_line.variant.product_id == product.id)
-    for line in lines:
-        for dummy_i in range(line.quantity):
-            yield line.variant, line.get_price_per_item()
-
-
 def get_or_create_user_cart(user, request, cart_queryset=Cart.objects.all()):
     """Return an open cart for given user or create a new one."""
     if not user.is_authenticated():
