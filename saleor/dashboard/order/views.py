@@ -16,7 +16,7 @@ from .forms import (
 from ..views import staff_member_required
 from ...core.utils import get_paginator_items
 from ...order import OrderStatus
-from ...order.models import Order, OrderLine, OrderNote
+from ...order.models import Order, OrderLine, OrderNote, OrderUserFieldEntry
 
 
 @staff_member_required
@@ -39,7 +39,9 @@ def order_details(request, order_pk):
     notes = order.notes.all()
     lines = order.get_lines()
 
-    ctx = {'order': order, 'lines': lines, 'notes': notes}
+    ufes = OrderUserFieldEntry.objects.filter(order=order)
+
+    ctx = {'order': order, 'lines': lines, 'notes': notes, 'userfields': ufes}
     return TemplateResponse(request, 'dashboard/order/detail.html', ctx)
 
 

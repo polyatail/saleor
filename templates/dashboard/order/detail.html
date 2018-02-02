@@ -110,20 +110,15 @@
                 {{ order.user.company }}
               </p>
             </div>
+            {% for uf in userfields %}
             <div class="col s12 m4 l12">&nbsp;</div>
             <div class="col s12 m4 l12">
-              <h5>Employee ID:</h5>
+              <h5>{{ uf.userfield.name }}:</h5>
               <p>
-                {{ order.employeeid }}
+                {% if uf.data %}{{ uf.data }}{% else %}<i>None</i>{% endif %}
               </p>
             </div>
-            <div class="col s12 m4 l12">&nbsp;</div>
-            <div class="col s12 m4 l12">
-              <h5>Order Status:</h5>
-              <p>
-                {{ order.get_status_display }}
-              </p>
-            </div>
+            {% endfor %}
           </div>
         </div>
       </div>

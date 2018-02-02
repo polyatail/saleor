@@ -9,9 +9,9 @@ from .product.urls import urlpatterns as product_urls
 
 urlpatterns = [
     url(r'^$', core_views.index, name='index'),
-    url(r'^categories/', include(category_urls)),
+    url(r'^companies/', include(category_urls)),
     url(r'^orders/', include(order_urls)),
     url(r'^products/', include(product_urls)),
-    url(r'^staff/', include(staff_urls)),
+    url(r'^users/', include(staff_urls)),
     url(r'^style-guide/', core_views.styleguide, name='styleguide'),
 ]
