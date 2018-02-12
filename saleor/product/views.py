@@ -37,48 +37,18 @@ def product_details(request, slug, product_id, form=None):
     """
     product = get_object_or_404(fetch_all_products(), id=product_id)
 
-    # if not allowed to access this item, redirect to user's home page
-    if request.user.company.id not in product.categories.values_list("id")[0]:
-      return redirect('product:category', permanent=True, path=request.user.company.get_full_path(),
-                      category_id=request.user.company.id)
-
-    if product.get_slug() != slug:
-        return HttpResponsePermanentRedirect(product.get_absolute_url())
-    today = datetime.date.today()
-    is_visible = True
     if form is None:
         form = handle_cart_form(request, product, create_cart=False)[0]
     product_images = list(product.images.all())
     variant_picker_data = get_variant_picker_data(product)
     product_attributes = get_product_attributes_data(product)
     show_variant_picker = all([v.attributes for v in product.variants.all()])
-#    show_variant_picker = [v.attributes for v in product.variants.all()]
-#    show_variant_picker = True if all(show_variant_picker) and show_variant_picker else False
     json_ld_data = product_json_ld(product, product_attributes)
-
-#    # figure out the appropriate variant image
-#    variant_finder = {}
-#
-#    for k, v in request.GET.items():
-#      k_id = get_object_or_404(ProductAttribute, slug=k).id
-#      v_id = get_object_or_404(AttributeChoiceValue, attribute_id=k_id, slug=v).id
-#
-#      variant_finder["attributes__%d" % k_id] = v_id
-#
-#    picked_variant = ProductVariant.objects.filter(**variant_finder).first()
-#
-#    # try to match this variant's images to the product_images
-#    for pi_idx in range(len(product_images)):
-#      if product_images[pi_idx] == picked_variant.images.first():
-#        product_images[pi_idx].active = True
-#        break
-#    else:
-#      product_images[0].active = True
 
     if product_images:
       product_images[0].active = True
 
-    return ({'is_visible': is_visible,
+    return ({'is_visible': True,
            'form': form,
            'product': product,
            'slug': product.get_slug(),
