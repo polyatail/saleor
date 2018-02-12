@@ -6,14 +6,14 @@ from saleor.userprofile.models import User
 
 
 class LoginForm(django_forms.AuthenticationForm):
-    username = forms.EmailField(
-        label=pgettext('Form field', 'Email'), max_length=75)
+    username = forms.CharField(
+        label=pgettext('Form field', 'Username'), max_length=64)
 
     def __init__(self, request=None, *args, **kwargs):
         super(LoginForm, self).__init__(request=request, *args, **kwargs)
         if request:
-            email = request.GET.get('email')
-            if email:
-                self.fields['username'].initial = email
+            username = request.GET.get('username')
+            if username:
+                self.fields['username'].initial = username
 
 

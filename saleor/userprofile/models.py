@@ -10,26 +10,25 @@ from ..product.models import Category
 
 class UserManager(BaseUserManager):
     def create_user(
-            self, email, password=None, is_staff=False, is_active=True,
+            self, username, password=None, is_staff=False, is_active=True,
             **extra_fields):
         """Create a user instance with the given email and password."""
-        email = UserManager.normalize_email(email)
         user = self.model(
-            email=email, is_active=is_active, is_staff=is_staff,
+            username=username, is_active=is_active, is_staff=is_staff,
             **extra_fields)
         if password:
             user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, username, password=None, **extra_fields):
         return self.create_user(
-            email, password, is_staff=True, **extra_fields)
+            username, password, is_staff=True, **extra_fields)
 
 
 class User(AbstractBaseUser):
-    email = models.EmailField(
-        pgettext_lazy('User field', 'email'), unique=True)
+    username = models.CharField(
+        pgettext_lazy('User field', 'username'), unique=True, max_length=64)
     is_staff = models.BooleanField(
         pgettext_lazy('User field', 'staff status'),
         default=False)
@@ -41,12 +40,12 @@ class User(AbstractBaseUser):
         pgettext_lazy('User field', 'date joined'),
         default=timezone.now, editable=False)
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
 
     objects = UserManager()
 
     def get_full_name(self):
-        return self.email
+        return self.username
 
     def get_short_name(self):
-        return self.email
+        return self.username

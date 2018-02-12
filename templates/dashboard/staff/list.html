@@ -39,11 +39,11 @@
             <table class="bordered highlight responsive data-table">
               <thead>
                 <tr>
-                  {% get_sort_by_toggle 'email' as toggle %}
+                  {% get_sort_by_toggle 'username' as toggle %}
                   <th class="{% if toggle.is_active %}active{% endif %}">
                     <a href="{{ toggle.url }}">
                       <svg data-src="{{ toggle.sorting_icon }}" />
-                      {% trans "Email" context "Staff members table header" %}
+                      {% trans "Username" context "Staff members table header" %}
                     </a>
                   </th>
                   {% get_sort_by_toggle 'company' as toggle %}
@@ -70,7 +70,7 @@
                 {% for user in staff %}
                   <tr data-action-go="{% url "dashboard:staff-details" pk=user.pk %}">
                       <td>
-                        {{ user.email }}
+                        {{ user.username }}
                       </td>
                       <td>
                         {{ user.company }}

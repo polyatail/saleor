@@ -17,4 +17,4 @@ class StaffForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'company', 'password', 'is_staff', 'is_active']
+        fields = ['username', 'company', 'password', 'is_staff', 'is_active']

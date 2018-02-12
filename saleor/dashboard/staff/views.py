@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import pgettext_lazy
 
-from .emails import send_set_password_email
 from .filters import StaffFilter
 from .forms import StaffForm
 from ..views import staff_member_required
@@ -15,7 +14,7 @@ from ...userprofile.models import User
 @staff_member_required
 def staff_list(request):
     staff_members = (User.objects.all()
-                     .order_by('email'))
+                     .order_by('username'))
     staff_filter = StaffFilter(request.GET, queryset=staff_members)
     staff_members = get_paginator_items(
         staff_filter.qs, settings.DASHBOARD_PAGINATE_BY,
@@ -54,7 +53,6 @@ def staff_create(request):
         msg = pgettext_lazy(
             'Dashboard message', 'Added user account %s') % staff
         messages.success(request, msg)
-        #send_set_password_email(staff)
         return redirect('dashboard:staff-list')
     ctx = {'form': form}
     return TemplateResponse(request, 'dashboard/staff/detail.html', ctx)
