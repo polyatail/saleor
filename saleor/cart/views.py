@@ -110,6 +110,16 @@ def checkout(request, cart):
         messages.success(request, ('This session has already checked out.\n\nOrder number was: %s.' % prev_order[0].id))
         return redirect(settings.LOGIN_REDIRECT_URL)
 
+    # make sure all company-specific fields have been filled out
+    ufs = UserField.objects.filter(company_id=request.user.company_id)
+    cart_ufes = CartUserFieldEntry.objects.filter(cart=cart)
+    cart_ufe_uf_ids = [c_ufe.userfield.id for c_ufe in cart_ufes]
+
+    for uf in ufs:
+        if uf.id not in cart_ufe_uf_ids:
+            messages.error(request, ('Please fill in all the required fields in the blue box above your cart.'))
+            return redirect('cart:index')
+
     order_data = {'user': request.user,
                   'token': cart.token}
 
@@ -129,7 +139,7 @@ def checkout(request, cart):
         ol = OrderLine.objects.create(**ol_data)
 
     # iterate through all cart userfields and create order userfields
-    for c_ufe in CartUserFieldEntry.objects.filter(cart=cart):
+    for c_ufe in cart_ufes:
         o_ufe_data = {'order': order,
                       'userfield': c_ufe.userfield,
                       'data': c_ufe.data}
