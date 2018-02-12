@@ -14,10 +14,9 @@ from ..order.models import OrderUserFieldEntry
 from ..core.utils import serialize_decimal
 from .models import Category, AttributeChoiceValue, ProductAttribute, ProductVariant, UserField
 from .utils import (
-    get_product_attributes_data, get_product_images,
+    get_product_attributes_data,
     get_variant_picker_data, handle_cart_form, product_json_ld,
-    products_for_cart, products_with_details,
-    get_or_create_user_cart)
+    get_or_create_user_cart, fetch_all_products)
 
 @login_required
 def product_details(request, slug, product_id, form=None):
@@ -36,8 +35,7 @@ def product_details(request, slug, product_id, form=None):
         The add-to-cart form.
 
     """
-    products = products_with_details(user=request.user)
-    product = get_object_or_404(products, id=product_id)
+    product = get_object_or_404(fetch_all_products(), id=product_id)
 
     # if not allowed to access this item, redirect to user's home page
     if request.user.company.id not in product.categories.values_list("id")[0]:
@@ -50,7 +48,7 @@ def product_details(request, slug, product_id, form=None):
     is_visible = True
     if form is None:
         form = handle_cart_form(request, product, create_cart=False)[0]
-    product_images = get_product_images(product)
+    product_images = list(product.images.all())
     variant_picker_data = get_variant_picker_data(product)
     product_attributes = get_product_attributes_data(product)
     show_variant_picker = all([v.attributes for v in product.variants.all()])
@@ -100,7 +98,7 @@ def product_add_to_cart(request, slug, product_id):
     if not request.method == 'POST':
         return redirect(reverse('category:index'))
 
-    products = products_for_cart(user=request.user)
+    products = fetch_all_products()
     product = get_object_or_404(products, pk=product_id)
     form, cart = handle_cart_form(request, product, create_cart=True)
 
@@ -123,7 +121,7 @@ def category_index(request):
     category_id = request.user.company.id
 
     category = get_object_or_404(Category, id=category_id)
-    products = (products_with_details(user=request.user)
+    products = (fetch_all_products()
                 .filter(categories__id=category.id, is_published=True)
                 .order_by('name'))
 

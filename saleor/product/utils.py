@@ -9,31 +9,15 @@ from . import ProductAvailabilityStatus, VariantAvailabilityStatus
 from ..cart.utils import get_user_cart, get_or_create_user_cart
 from .forms import ProductForm
 
-
-def products_visible_to_user(user):
+def fetch_all_products():
     from .models import Product
-    if user.is_authenticated and user.is_active and user.is_staff:
-        return Product.objects.all()
-    else:
-        return None
-
-
-def products_with_details(user):
-    products = products_visible_to_user(user)
+    products = Product.objects.all()
     products = products.prefetch_related(
         'categories', 'images', 
         'variants__variant_images__image', 'attributes__values',
         'product_class__variant_attributes__values',
         'product_class__product_attributes__values')
     return products
-
-
-def get_product_images(product):
-    """
-    Returns list of product images that will be placed in product gallery
-    """
-    return list(product.images.all())
-
 
 def handle_cart_form(request, product, create_cart=False):
     if create_cart:
@@ -43,12 +27,6 @@ def handle_cart_form(request, product, create_cart=False):
     form = ProductForm(
         cart=cart, product=product, data=request.POST or None)
     return form, cart
-
-
-def products_for_cart(user):
-    products = products_visible_to_user(user)
-    products = products.prefetch_related('variants__variant_images__image')
-    return products
 
 
 def product_json_ld(product, attributes=None):
