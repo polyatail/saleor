@@ -58,7 +58,7 @@ def product_json_ld(product, attributes=None):
             '@type': 'Product',
             'name': smart_text(product),
             'image': smart_text(product.get_first_image()),
-            'description': product.description,
+            #'description': product.description,
             'offers': {'@type': 'Offer',
                        'itemCondition': 'http://schema.org/NewCondition',
                        'availability': 'http://schema.org/InStock'}}

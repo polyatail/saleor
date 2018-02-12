@@ -10,8 +10,8 @@ const variantPickerContainer = document.getElementsByClassName('variant-picker')
 
 for (var i = 0; i < variantPickerContainer.length; i++)
 {
-  console.log(i);
-  console.log(variantPickerContainer[i].dataset.variantPickerData);
+//  console.log(i);
+//  console.log(variantPickerContainer[i].dataset.variantPickerData);
 
   if (variantPickerContainer[i].dataset.variantPickerData)
   {

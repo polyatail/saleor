@@ -95,7 +95,6 @@ export default $(document).ready((e) => {
           $cartBadge.html(response.cart.numItems);
           $qunatityError.html('');
           $cartDropdown.load(summaryLink);
-          deliveryAjax();
         },
         error: (response) => {
           $qunatityError.html(getAjaxError(response));
@@ -118,34 +117,37 @@ export default $(document).ready((e) => {
             $.cookie('alert', 'true', {path: '/cart'});
             location.reload();
           }
-          deliveryAjax();
         }
       });
     });
   });
 
-  // Delivery information
+  // Company specific field entry
 
-  let $deliveryForm = $('.deliveryform');
-  let crsfToken = $deliveryForm.data('crsf');
-  let countrySelect = '#id_country';
-  let $cartSubtotal = $('.cart__subtotal');
-  let deliveryAjax = (e) => {
-    let newCountry = $(countrySelect).val();
-    $.ajax({
-      url: '/cart/shipingoptions/',
-      type: 'POST',
-      data: {
-        'csrfmiddlewaretoken': crsfToken,
-        'country': newCountry
-      },
-      success: (data) => {
-        $cartSubtotal.html(data);
-      }
+  let $userFields = $('.userfield');
+  let ufFormUrl = $('#userfield-update').attr('action');
+
+  $userFields.each(function () {
+    $(this).on('change', (e) => {
+      let uf_name = $(this).find('.form-control').attr('name');
+      let uf_value = $(this).find('.form-control').val();
+      let values = {};
+
+      values[uf_name] = uf_value;
+
+      $.ajax({
+        url: ufFormUrl,
+        method: 'POST',
+        data: values,
+        success: (response) => {
+//          console.log("success", uf_name, uf_value);
+        },
+        error: (response) => {
+//          console.log("error", uf_name, uf_value, response.responseText);
+        }
+      });
     });
-  };
-
-  $cartSubtotal.on('change', countrySelect, deliveryAjax);
+  });
 
   if ($.cookie('alert') === 'true') {
     $removeProductSuccess.removeClass('d-none');

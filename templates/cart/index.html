@@ -22,6 +22,31 @@
   {% trans "Product has been removed from cart" context "Cart message" %}
   <button type="button" class="close close-msg" aria-hidden="true">&times;</button>
 </div>
+
+<div class="alert alert-info">
+  <br>
+  <h2>Please provide the following information</h2>
+  <hr>
+
+  <div class="row">
+    <div class="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5">
+      <form method="post" class="form-cart"
+             id="userfield-update" 
+             action="{% url 'cart:userfield-update' %}" novalidate>
+      {% csrf_token %}
+
+      {% for slug, field in uf_form.fields.items %}
+        <div class="form-group userfield">
+          <label class="control-label"><h3>{{ field.label }}</h3><p>{{ field.description }}</p></label>
+          <input class="form-control" name="{{ slug }}" type="text" maxlength={{ field.max_length }} value="{{ field.value }}">
+        </div>
+      {% endfor %}
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <div class="cart">
   {% if cart_lines %}
   <div class="table__header d-none d-md-block">
@@ -72,10 +97,10 @@
   <div class="row">
     <div class="col-md-2 col-sm-0 text-center"></div>
     <div class="col-md-4 col-sm-6 text-center">
-      <a href="{% url "cart:cart-checkout" %}" class="btn primary narrow cart__submit">Place Order</a></br></br>
+      <a href="/" class="btn secondary narrow">Continue Shopping</a>
     </div>
     <div class="col-md-4 col-sm-6 text-center">
-      <a href="/" class="btn secondary narrow">Continue Shopping</a>
+      <a href="{% url "cart:cart-checkout" %}" class="btn primary narrow cart__submit">Place Order</a></br></br>
     </div>
     <div class="col-md-2 col-sm-0 text-center"></div>
   </div>

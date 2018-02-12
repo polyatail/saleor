@@ -24,7 +24,7 @@ class Category(MPTTModel):
     slug = models.SlugField(
         pgettext_lazy('Category field', 'slug'), max_length=50)
     description = models.TextField(
-        pgettext_lazy('Category field', 'description'), blank=True)
+        pgettext_lazy('Category field', 'message to users'), blank=True)
     parent = models.ForeignKey(
         'self', null=True, blank=True, related_name='children',
         verbose_name=pgettext_lazy('Category field', 'parent'),
@@ -96,8 +96,8 @@ class Product(models.Model, ItemRange):
         on_delete=models.CASCADE)
     name = models.CharField(
         pgettext_lazy('Product field', 'name'), max_length=128)
-    description = models.TextField(
-        verbose_name=pgettext_lazy('Product field', 'description'), blank=True)
+#    description = models.TextField(
+#        verbose_name=pgettext_lazy('Product field', 'description'), blank=True)
     categories = models.ManyToManyField(
         Category, verbose_name=pgettext_lazy('Product field', 'companies'),
         related_name='products')

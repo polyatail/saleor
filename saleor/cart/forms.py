@@ -30,18 +30,6 @@ class UpdateUserFields(forms.Form):
           self.fields[slugify(uf.name).replace("-", "_")] = forms.CharField(label=uf.name, max_length=128)
           self.fields[slugify(uf.name).replace("-", "_")].description = uf.description
 
-    def clean(self):
-        cleaned_data = super(UpdateUserFields, self).clean()
-
-        if self.data.get('checkout_now') == '0':
-          cleaned_data['checkout_now'] = False
-        elif self.data.get('checkout_now') == '1':
-          cleaned_data['checkout_now'] = True
-        else:
-          cleaned_data['checkout_now'] = None
-
-        return cleaned_data
-
     def load_defaults(self, ufes):
       for uf in self.userfields:
         for ufe in ufes:
@@ -51,17 +39,32 @@ class UpdateUserFields(forms.Form):
         else:
           self.fields[slugify(uf.name).replace("-", "_")].value = ''
 
+    def is_valid(self):
+      # data can't be empty
+      if not self.data:
+        return False
+
+      # and can't contain userfields not in this company
+      for k in self.data:
+        if k not in self.fields:
+          return False
+      else:
+        return True 
+
     def save(self):
       for uf in self.userfields:
+        # don't update fields if there's no data to save
+        ufe_data = self.cleaned_data.get(slugify(uf.name).replace("-", "_"))
+
+        if not ufe_data:
+          continue
+
         # create filled userfieldentry then save it
         ufe, created = CartUserFieldEntry.objects.update_or_create(
                          cart_id=self.cart.pk,
                          userfield_id=uf.pk)
 
-        ufe.data = self.cleaned_data.get(slugify(uf.name).replace("-", "_"))
-
-        if not ufe.data:
-          ufe.data = ''
+        ufe.data = ufe_data
 
         ufe.save()
 

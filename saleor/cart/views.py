@@ -7,9 +7,9 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth, messages
 
-from .forms import ReplaceCartLineForm
+from .forms import ReplaceCartLineForm, UpdateUserFields
 from ..order.models import Order, OrderStatus, OrderLine, OrderUserFieldEntry
-from ..product.models import ProductVariant
+from ..product.models import ProductVariant, UserField
 from .models import Cart, CartUserFieldEntry
 from .utils import get_or_empty_db_cart
 
@@ -34,9 +34,15 @@ def index(request, cart):
             'variant': line.variant,
             'form': form})
 
+    userfields = UserField.objects.filter(company_id=request.user.company_id)
+    uf_entries = CartUserFieldEntry.objects.filter(cart=cart)
+    userfield_form = UpdateUserFields(cart=cart, userfields=userfields)
+    userfield_form.load_defaults(uf_entries)
+
     ctx = {
         'quantity': cart.quantity,
         'cart_lines': cart_lines,
+        'uf_form': userfield_form,
           }
 
     return TemplateResponse(
@@ -134,3 +140,24 @@ def checkout(request, cart):
     auth.logout(request)
     messages.success(request, ('Your order has been successfully placed!\n\nYour order number is %s.' % (order.id,)))
     return redirect(settings.LOGIN_REDIRECT_URL)
+
+@login_required
+@get_or_empty_db_cart(cart_queryset=Cart.objects.for_display())
+def userfield_update(request, cart):
+    if not request.is_ajax():
+        return redirect('home', permanent=True)
+
+    userfields = UserField.objects.filter(company_id=request.user.company.id)
+    form = UpdateUserFields(request, cart=cart, userfields=userfields)
+
+    if form.is_valid():
+        form.full_clean()
+        form.save()
+
+        response = {}
+        status = 200
+    elif request.POST is not None:
+        response = {'error': form.errors}
+        status = 400
+    return JsonResponse(response, status=status)
+

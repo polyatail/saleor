@@ -28,32 +28,6 @@
     {{ message_to_users|linebreaks }}
   {% endif %}
 
-  <br>
-  <h2>Please provide the following information</h2>
-  <hr>
-
-  <div class="row">
-    <div class="col-xs-12 col-sm-11 col-md-8 col-lg-6 col-xl-5">
-      <form method="post" class="form-cart"
-             id="place-order" 
-             action="{% url 'product:update-userfields' %}" novalidate>
-      {% csrf_token %}
-      <input id="checkout-now" name="checkout_now" type="hidden" value=0>
-
-      {% for slug, field in uf_form.fields.items %}
-        <div class="form-group">
-          <label class="control-label"><h3>{{ field.label }}</h3><p>{{ field.description }}</p></label>
-          <input class="form-control" name="{{ slug }}" type="text" maxlength={{ field.max_length }} value="{{ field.value }}">
-        </div>
-      {% endfor %}
-
-      <div class="form-group">
-        <center><button class="btn btn-primary">Save Changes</button></center>
-      </div>
-
-      </form>
-    </div>
-  </div>
 </div>
 
 </br>
@@ -143,7 +117,9 @@
 </br></br>
 
 <div class="text-center">
-  <button id="place-order-button" class="btn primary" style="padding: 40px 40px; font-size: 50px">PLACE ORDER</button>
+  <a href="{% url 'cart:index' %}">
+    <button class="btn primary" style="padding: 40px 40px; font-size: 50px">Go To Cart</button>
+  </a>
 </div>
 
 </br></br>

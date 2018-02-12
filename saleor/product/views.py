@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
 from ..cart.views import checkout
-from ..cart.forms import UpdateUserFields
 from ..cart.models import CartUserFieldEntry
 from ..order.models import OrderUserFieldEntry
 from ..core.utils import serialize_decimal
@@ -130,12 +129,6 @@ def category_index(request):
 
     cart = get_or_create_user_cart(request.user, request)
 
-    userfields = UserField.objects.filter(company_id=category_id)
-    uf_entries = CartUserFieldEntry.objects.filter(cart=cart)
-    userfield_form = UpdateUserFields(cart=cart, userfields=userfields)
-    userfield_form.load_defaults(uf_entries)
-
-
     ret_products = []
 
     if request.user.company.description:
@@ -151,22 +144,7 @@ def category_index(request):
     ctx = {"category": category.name,
            "products": ret_products,
            "message_to_users": message_to_users,
-           "uf_form": userfield_form,
           }
 
     return TemplateResponse(request, 'category/index.html', ctx)
 
-@login_required
-def update_userfields(request):
-    cart = get_or_create_user_cart(request.user, request)
-    userfields = UserField.objects.filter(company_id=request.user.company.id)
-    form = UpdateUserFields(request, cart=cart, userfields=userfields)
-
-    form.full_clean()
-    form.save()
-
-    if form.cleaned_data['checkout_now']:
-      # checkout instead of returning to home page
-      return redirect('cart:cart-checkout', permanent=True)
-
-    return redirect('home', permanent=True)
