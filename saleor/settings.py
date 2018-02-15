@@ -133,6 +133,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.security.SecurityMiddleware',
 ]
 
 INSTALLED_APPS = [
@@ -290,6 +291,7 @@ TEST_RUNNER = ''
 
 ALLOWED_HOSTS = get_list(os.environ.get('ALLOWED_HOSTS', 'localhost'))
 
+SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Amazon S3 configuration
