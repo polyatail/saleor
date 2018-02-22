@@ -1,0 +1,35 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% load status %}
+{% load utils %}
+
+{% block title %}{% trans "Orders" context "Dashboard orders list" %} - {{ block.super }}{% endblock %}
+
+{% block body_class %}body-orders{% endblock %}
+
+{% block menu_orders_class %}active{% endblock %}
+
+{% block breadcrumbs %}
+  <ul class="breadcrumbs">
+    <li class="visible-s">Export Orders as CSV</li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <h2>Export CSV</h2>
+  Click any of the company names below to download all orders to date in CSV format.
+  <br><br>
+  <div class="row">
+    <div class="col s12 l9">
+    {% if companies %}
+      {% for company in companies %}
+        <h3><a href={% url 'dashboard:order-export' company_id=company.id %}>{{ company.name }}</a></h3>
+      {% endfor %}
+    {% else %}
+      <div class="not-found">
+        <p class="grey-text">No companies found.</p>
+      </div>
+    {% endif %}
+    </div>
+  </div>
+{% endblock %}
