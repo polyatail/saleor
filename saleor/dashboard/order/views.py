@@ -98,7 +98,7 @@ def order_export(request, company_id):
 
     for line in outfile:
       if len(line) < len(header):
-        line.extend([0] * len(header) - len(line))
+        line.extend([0] * (len(header) - len(line)))
 
       writer.writerow(line)
 
