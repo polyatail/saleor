@@ -59,11 +59,10 @@ def order_export(request, company_id):
     for uf in UserField.objects.all().filter(company__id=company_id):
       userfields.append(uf.name)
 
-    writer = csv.writer(response)
+    outfile = []
 
     # build the header
     header = ["Order ID", "Date", "Status"] + userfields + skus
-    writer.writerow(header)
 
     # entries to index dictionary
     entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
@@ -74,13 +73,29 @@ def order_export(request, company_id):
 
       # insert quantities into line
       for ol in o.get_lines():
+        # if this SKU was deleted at some point, manually add a column for it
+        try:
+          my_line[entry_to_idx[ol.product_sku]] = ol.quantity
+        except KeyError:
+          header.append(ol.product_sku)
+          entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
+
         my_line[entry_to_idx[ol.product_sku]] = ol.quantity
 
       # insert userfields into line
       for uf in o.get_userfields():
         my_line[entry_to_idx[uf.userfield.name]] = uf.data
 
-      writer.writerow(my_line)
+      outfile.append(my_line)
+
+    # prepend the header on to the output list
+    outfile.insert(0, header)
+
+    # then write the contents
+    writer = csv.writer(response)
+
+    for line in outfile:
+      writer.writerow(line)
 
     return response
 
