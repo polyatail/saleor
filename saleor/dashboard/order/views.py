@@ -97,6 +97,9 @@ def order_export(request, company_id):
     writer = csv.writer(response)
 
     for line in outfile:
+      if len(line) <> len(header):
+        line.extend([0] * len(header) - len(line))
+
       writer.writerow(line)
 
     return response
