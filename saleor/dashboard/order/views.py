@@ -78,6 +78,8 @@ def order_export(request, company_id):
           my_line[entry_to_idx[ol.product_sku]] = ol.quantity
         except KeyError:
           header.append(ol.product_sku)
+          skus.append(ol.product_sku)
+          my_line.append(0)
           entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
 
         my_line[entry_to_idx[ol.product_sku]] = ol.quantity
