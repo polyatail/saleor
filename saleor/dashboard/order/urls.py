@@ -5,6 +5,8 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.order_list, name='orders'),
+    url(r'^export/$', views.order_export_list, name='order-export-list'),
+    url(r'^export/(?P<company_id>\d+)/$', views.order_export, name='order-export'),
     url(r'^(?P<order_pk>\d+)/$',
         views.order_details, name='order-details'),
     url(r'^(?P<order_pk>\d+)/add-note/$',

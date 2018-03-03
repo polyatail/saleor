@@ -40,6 +40,9 @@ class Order(models.Model, ItemSet):
     def get_lines(self):
         return OrderLine.objects.filter(order=self.id)
 
+    def get_userfields(self):
+        return OrderUserFieldEntry.objects.filter(order=self.id)
+
     def __iter__(self):
         return iter(self.groups.all())
 

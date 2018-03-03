@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.context_processors import csrf
 from django.template.response import TemplateResponse
 from django.utils.translation import pgettext_lazy
+from django.utils.text import slugify
 
 from .filters import OrderFilter
 from .forms import (
@@ -17,6 +18,9 @@ from ..views import staff_member_required
 from ...core.utils import get_paginator_items
 from ...order import OrderStatus
 from ...order.models import Order, OrderLine, OrderNote, OrderUserFieldEntry
+from ...product.models import Product, UserField, Category
+
+import csv
 
 
 @staff_member_required
@@ -29,6 +33,76 @@ def order_list(request):
     ctx = {'orders': orders, 'filter': order_filter}
     return TemplateResponse(request, 'dashboard/order/list.html', ctx)
 
+
+@staff_member_required
+def order_export_list(request):
+    ctx = {'companies': Category.objects.all()}
+    return TemplateResponse(request, 'dashboard/order/export_list.html', ctx)
+
+ 
+@staff_member_required
+def order_export(request, company_id):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s_export.csv"' % \
+        (slugify(get_object_or_404(Category.objects.all(), id=company_id)))
+
+    # get all skus in this company
+    skus = []
+
+    for p in Product.objects.all().filter(categories__id=company_id):
+      for v in p.variants.all():
+        skus.append(v.sku)
+
+    # get all userfields in this company
+    userfields = []
+
+    for uf in UserField.objects.all().filter(company__id=company_id):
+      userfields.append(uf.name)
+
+    outfile = []
+
+    # build the header
+    header = ["Order ID", "Date", "Status"] + userfields + skus
+
+    # entries to index dictionary
+    entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
+
+    # iterate through all orders in this company
+    for o in Order.objects.all().filter(user__company__id=company_id):
+      my_line = [o.id, o.created, o.status] + ([""] * len(userfields)) + ([0] * len(skus))
+
+      # insert quantities into line
+      for ol in o.get_lines():
+        # if this SKU was deleted at some point, manually add a column for it
+        try:
+          my_line[entry_to_idx[ol.product_sku]] = ol.quantity
+        except KeyError:
+          header.append(ol.product_sku)
+          skus.append(ol.product_sku)
+          my_line.append(0)
+          entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
+
+        my_line[entry_to_idx[ol.product_sku]] = ol.quantity
+
+      # insert userfields into line
+      for uf in o.get_userfields():
+        my_line[entry_to_idx[uf.userfield.name]] = uf.data
+
+      outfile.append(my_line)
+
+    # prepend the header on to the output list
+    outfile.insert(0, header)
+
+    # then write the contents
+    writer = csv.writer(response)
+
+    for line in outfile:
+      if len(line) < len(header):
+        line.extend([0] * (len(header) - len(line)))
+
+      writer.writerow(line)
+
+    return response
 
 @staff_member_required
 def order_details(request, order_pk):
