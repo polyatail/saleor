@@ -62,20 +62,23 @@ def order_export(request, company_id):
     outfile = []
 
     # build the header
-    header = ["Order ID", "Date", "Status"] + userfields + skus
+    header = ["Order ID", "Date", "Status", "Total Price"] + userfields + skus
 
     # entries to index dictionary
     entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
 
     # iterate through all orders in this company
     for o in Order.objects.all().filter(user__company__id=company_id):
-      my_line = [o.id, o.created, o.status] + ([""] * len(userfields)) + ([0] * len(skus))
+      my_line = [o.id, o.created, o.status, 0.00] + ([""] * len(userfields)) + ([0] * len(skus))
 
-      # insert quantities into line
+      # insert quantities into line and keep track of total
+      total = 0
+
       for ol in o.get_lines():
         # if this SKU was deleted at some point, manually add a column for it
         try:
           my_line[entry_to_idx[ol.product_sku]] = ol.quantity
+          total += ol.quantity * ol.product.price
         except KeyError:
           header.append(ol.product_sku)
           skus.append(ol.product_sku)
@@ -83,6 +86,8 @@ def order_export(request, company_id):
           entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
 
         my_line[entry_to_idx[ol.product_sku]] = ol.quantity
+
+      my_line[3] = total
 
       # insert userfields into line
       for uf in o.get_userfields():
