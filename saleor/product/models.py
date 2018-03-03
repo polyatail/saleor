@@ -96,6 +96,7 @@ class Product(models.Model, ItemRange):
         on_delete=models.CASCADE)
     name = models.CharField(
         pgettext_lazy('Product field', 'name'), max_length=128)
+    price = models.DecimalField('Price', max_digits=6, decimal_places=2)
 #    description = models.TextField(
 #        verbose_name=pgettext_lazy('Product field', 'description'), blank=True)
     categories = models.ManyToManyField(

@@ -35,7 +35,13 @@
     <div class="col s12 l9">
       <div class="card">
         <div class="card-content">
-          <span class="card-title">{{ product }} <br> <small>{{ product.product_class }}</small></span>
+          <span class="card-title">
+            {{ product }}
+            <br>
+            <small>{{ product.product_class }}</small>
+            <br>
+            <small>${{ product.price }}</small>
+          </span>
         </div>
         <div class="card-action">
             <a href="{% url "dashboard:product-update" product.pk %}" class="btn-flat waves-effect">

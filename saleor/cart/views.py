@@ -26,6 +26,8 @@ def index(request, cart):
     except Cart.DoesNotExist:
         pass
 
+    total_price = 0
+
     for line in cart.lines.all():
         initial = {'quantity': line.get_quantity()}
         form = ReplaceCartLineForm(None, cart=cart, variant=line.variant,
@@ -34,6 +36,8 @@ def index(request, cart):
             'variant': line.variant,
             'form': form})
 
+        total_price += line.variant.product.price * line.quantity
+
     userfields = UserField.objects.filter(company_id=request.user.company_id)
     uf_entries = CartUserFieldEntry.objects.filter(cart=cart)
     userfield_form = UpdateUserFields(cart=cart, userfields=userfields)
@@ -41,6 +45,7 @@ def index(request, cart):
 
     ctx = {
         'quantity': cart.quantity,
+        'total': total_price,
         'cart_lines': cart_lines,
         'uf_form': userfield_form,
           }

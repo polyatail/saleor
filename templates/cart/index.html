@@ -51,8 +51,11 @@
   {% if cart_lines %}
   <div class="table__header d-none d-md-block">
     <div class="row">
-      <div class="col-lg-10 col-md-9">
+      <div class="col-lg-9 col-md-6">
         <small>{% trans "Product" context "Cart table header" %}</small>
+      </div>
+      <div class="col-lg-1 col-md-3">
+        <small>Price</small>
       </div>
       <div class="col-lg-2 col-md-3">
         <small>{% trans "Quantity" context "Cart table header" %}</small>
@@ -70,8 +73,11 @@
                alt="">
         </a>
       </div>
-      <div class="col-lg-9 col-md-7 col-sm-6 col-xs-6">
+      <div class="col-lg-8 col-md-7 col-sm-6 col-xs-6">
         {{ line.variant.product }}<br><small>{{ line.variant }}</small>
+      </div>
+      <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2 cart__line__quantity">
+        ${{ line.variant.product.price }}
       </div>
       <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2 cart__line__quantity">
         <form role="form" action="{% url "cart:update-line" variant_id=line.variant.pk %}" method="post" class="form-cart">
@@ -90,7 +96,8 @@
   {% endfor %}
   <div class="cart__total">
     <div class="row">
-      <div class="col-lg-10 col-md-9 col-sm-8 cart__total__subtotal"><h3>Total items</h3></div>
+      <div class="col-lg-9 col-md-9 col-sm-8 cart__total__subtotal"><h3>Totals</h3></div>
+      <div class="col-lg-1 col-md-3 col-sm-4"><h3 class="text-left cart-total"><span>${{ total }}</span></h3></div>
       <div class="col-lg-2 col-md-3 col-sm-4"><h3 class="text-left cart-total"><span>{{ quantity }}</span></h3></div>
     </div>
   </div>
