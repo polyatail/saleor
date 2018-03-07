@@ -496,14 +496,13 @@ def ajax_upload_image(request, product_pk):
     product = get_object_or_404(Product, pk=product_pk)
     form = forms.UploadImageForm(
         request.POST or None, request.FILES or None, product=product)
-    form.instance.image.save(request.FILES['file'].name, request.FILES['file'])
     status = 200
     if form.is_valid():
         image = form.save()
         ctx = {'id': image.pk, 'image': None, 'order': image.order}
     elif form.errors:
         status = 400
-        ctx = {'error': form.errors}
+        ctx = {'error': ".  ".join([x[0] for x in form.errors.values()])}
     return JsonResponse(ctx, status=status)
 
 

@@ -2,6 +2,7 @@ from django import forms
 from django.db.models import Count
 from django.forms.models import ModelChoiceIterator
 from django.forms.widgets import CheckboxSelectMultiple
+from django.core.exceptions import ValidationError
 from django.utils.encoding import smart_text
 from django.utils.text import slugify
 from django.utils.translation import pgettext_lazy
@@ -276,7 +277,20 @@ class UploadImageForm(forms.ModelForm):
         product = kwargs.pop('product')
         super(UploadImageForm, self).__init__(*args, **kwargs)
         self.instance.product = product
+        self.instance.image = args[1]['file']
 
+    def clean(self):
+        cd = self.cleaned_data
+
+        from PIL import Image
+
+        try:
+            self.instance.image.seek(0)
+            image = Image.open(self.instance.image)
+        except:
+            raise ValidationError("Unable to identify uploaded image type")
+
+        return cd
 
 class ProductBulkUpdate(forms.Form):
     """Performs one selected bulk action on all selected products."""
