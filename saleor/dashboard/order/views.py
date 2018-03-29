@@ -76,16 +76,21 @@ def order_export(request, company_id):
 
       for ol in o.get_lines():
         # if this SKU was deleted at some point, manually add a column for it
-        try:
-          my_line[entry_to_idx[ol.product_sku]] = ol.quantity
-          total += ol.quantity * ol.product.price
-        except KeyError:
-          header.append(ol.product_sku)
-          skus.append(ol.product_sku)
-          my_line.append(0)
-          entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
+        if ol.product_id == None:
+          my_sku = "DELETED:%s" % ol.product_sku
 
-        my_line[entry_to_idx[ol.product_sku]] = ol.quantity
+          if my_sku not in header:
+            header.append(my_sku)
+            skus.append(my_sku)
+            my_line.append(0)
+            entry_to_idx = dict([(y, x) for x, y in enumerate(header)])
+        else:
+          my_sku = ol.product_sku
+
+          # we can only add to the total items that have prices (ie havent been deleted)
+          total += ol.quantity * ol.product.price
+
+        my_line[entry_to_idx[my_sku]] = ol.quantity
 
       my_line[3] = total
 
