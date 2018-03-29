@@ -76,7 +76,7 @@ def order_export(request, company_id):
 
       for ol in o.get_lines():
         # if this SKU was deleted at some point, manually add a column for it
-        if ol.product_id == None:
+        if ol.product_id == None or ol.product_sku not in entry_to_idx:
           my_sku = "DELETED:%s" % ol.product_sku
 
           if my_sku not in header:
