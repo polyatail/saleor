@@ -55,7 +55,7 @@
     <div class="row">
       <div class="col">
         {% if product.images.count > 0 %}
-          <div id="carousel-{{ proddata.slug }}" class="carousel slide">
+          <div id="carousel-{{ proddata.slug }}" class="carousel slide" data-interval="false">
             <ol class="carousel-indicators">
               {% for i in proddata.image_count %}
                 <li data-target="#carousel-{{ proddata.slug }}" data-slide-to="{{ i }}"{% if i == 0 %} class="active"{% endif %}></li>
@@ -64,7 +64,8 @@
 
             <div class="carousel-inner" role="listbox">
               {% for image in product.images.all %}
-                <div class="carousel-item{% if image.active %} active{% endif %}">
+                <div class="carousel-item{% if image.active %} active{% endif %}"
+                     id="{{ proddata.slug }}-{{ image.id}}">
                   <img class="d-block img-fluid"
                        src="{% get_thumbnail image.image method="crop" size="270x270" %}"
                        srcset="{% get_thumbnail image.image method="crop" size="270x270" %} 1x, {% get_thumbnail image.image method="crop" size="1080x1080" %} 2x" alt="">

@@ -17,7 +17,8 @@ export default class VariantPicker extends Component {
     store: PropTypes.object.isRequired,
     url: PropTypes.string.isRequired,
     variantAttributes: PropTypes.array.isRequired,
-    variants: PropTypes.array.isRequired
+    variants: PropTypes.array.isRequired,
+    prodslug: PropTypes.string.isRequired
   }
 
   constructor(props) {
@@ -86,6 +87,19 @@ export default class VariantPicker extends Component {
           params[attribute.slug] = value.slug;
         }
       });
+
+      // can we find a matching image for the given id?
+      var matching_images = $('#' + this.props.prodslug + "-" + this.props.store.variant.image_id);
+
+      if (matching_images.length == 1)
+      {
+        // deactivate all images in carousel
+        $('[id^=' + this.props.prodslug).removeClass("active");
+
+        // then activate the correct image
+        matching_images.addClass("active");
+      }
+
       //history.pushState(null, null, '?' + queryString.stringify(params));
     });
   }

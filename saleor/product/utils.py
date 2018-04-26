@@ -57,7 +57,9 @@ def product_json_ld(product, attributes=None):
 
 def get_variant_picker_data(product):
     variants = product.variants.all()
-    data = {'variantAttributes': [], 'variants': []}
+    data = {'variantAttributes': [],
+            'variants': [],
+            'prodslug': product.get_slug()}
 
     variant_attributes = product.product_class.variant_attributes.all()
 
@@ -70,8 +72,15 @@ def get_variant_picker_data(product):
 
         schema_data['availability'] = 'http://schema.org/InStock'
 
+        # is there a matching variant image?
+        if variant.variant_images.all():
+            variant_image_id = variant.variant_images.all()[0].image_id
+        else:
+            variant_image_id = None
+
         variant_data = {
             'id': variant.id,
+            'image_id': variant_image_id,
             'attributes': variant.attributes,
             'schemaData': schema_data}
         data['variants'].append(variant_data)

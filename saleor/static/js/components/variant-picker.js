@@ -26,6 +26,7 @@ for (var i = 0; i < variantPickerContainer.length; i++)
         url={variantPickerContainer[i].dataset.action}
         variantAttributes={variantData.variantAttributes}
         variants={variantData.variants}
+        prodslug={variantData.prodslug}
       />,
       variantPickerContainer[i]
     );

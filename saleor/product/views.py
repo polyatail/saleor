@@ -109,6 +109,8 @@ def category_index(request):
       p_deets["index"] = p_num
       ret_products.append(p_deets)
 
+#    import pdb; pdb.set_trace()
+
     ctx = {"category": category.name,
            "products": ret_products,
            "message_to_users": message_to_users,
