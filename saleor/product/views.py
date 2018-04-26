@@ -112,6 +112,7 @@ def category_index(request):
 #    import pdb; pdb.set_trace()
 
     ctx = {"category": category.name,
+           "prices_enabled": category.prices,
            "products": ret_products,
            "message_to_users": message_to_users,
           }

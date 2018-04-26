@@ -25,6 +25,8 @@ class Category(MPTTModel):
         pgettext_lazy('Category field', 'slug'), max_length=50)
     description = models.TextField(
         pgettext_lazy('Category field', 'message to users'), blank=True)
+    prices = models.BooleanField(
+        pgettext_lazy('Category field', 'prices enabled'), default=True)
     parent = models.ForeignKey(
         'self', null=True, blank=True, related_name='children',
         verbose_name=pgettext_lazy('Category field', 'parent'),

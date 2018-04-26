@@ -55,7 +55,9 @@
         <small>{% trans "Product" context "Cart table header" %}</small>
       </div>
       <div class="col-lg-1 col-md-3">
-        <small>Price</small>
+        {% if prices_enabled %}
+          <small>Price</small>
+        {% endif %}
       </div>
       <div class="col-lg-2 col-md-3">
         <small>{% trans "Quantity" context "Cart table header" %}</small>
@@ -77,7 +79,9 @@
         {{ line.variant.product }}<br><small>{{ line.variant }}</small>
       </div>
       <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2 cart__line__quantity">
-        ${{ line.variant.product.price }}
+        {% if prices_enabled %}
+          ${{ line.variant.product.price }}
+        {% endif %} 
       </div>
       <div class="col-lg-1 col-md-2 col-sm-2 col-xs-2 cart__line__quantity">
         <form role="form" action="{% url "cart:update-line" variant_id=line.variant.pk %}" method="post" class="form-cart">
@@ -97,7 +101,13 @@
   <div class="cart__total">
     <div class="row">
       <div class="col-lg-9 col-md-9 col-sm-8 cart__total__subtotal"><h3>Totals</h3></div>
-      <div class="col-lg-1 col-md-3 col-sm-4"><h3 class="text-left cart-total"><span>${{ total }}</span></h3></div>
+      <div class="col-lg-1 col-md-3 col-sm-4">
+        {% if prices_enabled %}
+          <h3 class="text-left cart-total">
+            <span>${{ total }}</span>
+          </h3>
+        {% endif %}
+      </div>
       <div class="col-lg-2 col-md-3 col-sm-4"><h3 class="text-left cart-total"><span>{{ quantity }}</span></h3></div>
     </div>
   </div>

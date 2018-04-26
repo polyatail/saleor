@@ -48,7 +48,12 @@
   
     <div class="row">
       <div class="col">
-        <h2 class="product__info__name"><center>{{ product.name }} (${{ product.price }})</center></h2>
+        <h2 class="product__info__name"><center>
+        {{ product.name }}
+        {% if prices_enabled %}
+          (${{ product.price }})
+        {% endif %}
+        </center></h2>
       </div>
     </div>
   
