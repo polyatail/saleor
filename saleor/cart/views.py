@@ -9,7 +9,7 @@ from django.contrib import auth, messages
 
 from .forms import ReplaceCartLineForm, UpdateUserFields
 from ..order.models import Order, OrderStatus, OrderLine, OrderUserFieldEntry
-from ..product.models import ProductVariant, UserField
+from ..product.models import ProductVariant, UserField, Category
 from .models import Cart, CartUserFieldEntry
 from .utils import get_or_empty_db_cart
 
@@ -19,6 +19,9 @@ from .utils import get_or_empty_db_cart
 def index(request, cart):
     """Display cart details."""
     cart_lines = []
+
+    category_id = request.user.company.id
+    category = get_object_or_404(Category, id=category_id)
 
     # refresh required to get updated cart lines and it's quantity
     try:
@@ -45,6 +48,7 @@ def index(request, cart):
 
     ctx = {
         'quantity': cart.quantity,
+        'prices_enabled': category.prices,
         'total': total_price,
         'cart_lines': cart_lines,
         'uf_form': userfield_form,
