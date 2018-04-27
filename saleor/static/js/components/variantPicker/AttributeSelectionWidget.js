@@ -25,10 +25,6 @@ export default class AttributeSelectionWidget extends Component {
             onChange={this.change}>
             {attribute.values.map((value, i) => {
               const active = selected === value.pk.toString();
-              if (active) {
-                this.props.handleChange(attribute.pk.toString(),
-                                        value.pk.toString());
-              }
               return (
                 <option value={i} selected={active}>
                   {value.name}

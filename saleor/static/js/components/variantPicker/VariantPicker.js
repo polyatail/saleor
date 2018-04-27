@@ -88,18 +88,6 @@ export default class VariantPicker extends Component {
         }
       });
 
-      // can we find a matching image for the given id?
-      var matching_images = $('#' + this.props.prodslug + "-" + this.props.store.variant.image_id);
-
-      if (matching_images.length == 1)
-      {
-        // deactivate all images in carousel
-        $('[id^=' + this.props.prodslug).removeClass("active");
-
-        // then activate the correct image
-        matching_images.addClass("active");
-      }
-
       //history.pushState(null, null, '?' + queryString.stringify(params));
     });
   }
@@ -150,6 +138,19 @@ export default class VariantPicker extends Component {
       'btn btn-primary': true,
       'disabled': disableAddToCart
     });
+
+    // whenever the variant picker is rendered, check for a variant
+    // image and set it to active in the bootstrap carousel
+    var matching_images = $('#' + this.props.prodslug + "-" + this.props.store.variant.image_id);
+
+    if (matching_images.length == 1)
+    {
+      // deactivate all images in carousel
+      $('[id^=' + this.props.prodslug).removeClass("active");
+
+      // then activate the correct image
+      matching_images.addClass("active");
+    }
 
     return (
       <div>

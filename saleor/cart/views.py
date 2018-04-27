@@ -89,7 +89,7 @@ def summary(request, cart):
         first_image = line.variant.get_first_image()
         return {
             'product': line.variant.product,
-            'variant': line.variant.name,
+            'variant': line.variant,
             'quantity': line.quantity,
             'attributes': line.variant.display_variant(attributes),
             'image': first_image,
